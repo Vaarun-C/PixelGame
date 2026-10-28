@@ -344,6 +344,38 @@ STONE_DIM = {"bone-1": "ash-3", "bone-0": "ash-2", "ash-4": "ash-2", "steel-3": 
 fill(ruins[0], (66, 21), {"void-0", "void-3", "void-1", "void-2", "steel-0", "ash-0", "steel-1"}, "steel-2", (54, 14, 80, 28))
 for r in ruins:
     recolour(r, STONE_DIM)
+# Reliquaries (sealed, then searched): A stone ossuary, B wooden casket, C candle shrine, D open iron box with a skull.
+TARNISH = {"ember-2": "bronze-2", "ember-1": "bronze-1", "flesh-3": "leather-2", "blood-0": "leather-0"}
+CANDLE_STONE = {k: v for k, v in STONE_DIM.items() if not k.startswith("bone")}
+YELLOW_SKULL = {"ember-3": "bone-0", "ember-2": "gilt-1", "blood-4": "blood-2"}
+EMPTY = ("void-2", "void-3")
+
+
+def emptied(img, names, colour="void-1", box=(0, 0, 64, 64)):
+    """The searched state: the relic's colours inside a box become the dark of an empty interior."""
+    out = img.copy()
+    px = out.load()
+    for y in range(box[1], box[3]):
+        for x in range(box[0], box[2]):
+            if NAME.get(px[x, y], "").startswith(names):
+                px[x, y] = COLORS[colour] + (255,)
+    return out
+
+
+candle_shrine = quadrant("reliquary_grid_2", 0)
+for _ in range(3):  # its pale stone sat far above the wanderer; the candle wax stays bright
+    recolour(candle_shrine, CANDLE_STONE)
+for box in ((0, 36, 64, 64), (34, 0, 64, 36)):  # pale mortar away from the candle
+    candle_shrine = emptied(candle_shrine, ("bone-",), "ash-1", box)
+reliq = [recolour(quadrant("reliquary_grid", 0), STONE_DIM), recolour(quadrant("reliquary_grid", 1), TARNISH),
+         candle_shrine, recolour(quadrant("reliquary_grid_2", 2), YELLOW_SKULL)]
+reliq_open = [
+    fill(reliq[0].copy(), (33, 27), {"ash-2", "ash-1", "ash-0", "steel-1", "steel-0"}, "void-2", (14, 12, 54, 40)),
+    fill(reliq[1].copy(), (31, 18), {"bronze-2", "bronze-1", "leather-0"}, "void-2", (12, 4, 54, 32)),
+    emptied(emptied(emptied(emptied(reliq[2], ("blood-",), "void-0"), ("flesh-", "gilt-", "ember-"), "void-0", (0, 0, 64, 20)),
+                    ("gilt-", "ember-"), "void-2", (30, 30, 40, 42)), ("bone-",), "ash-2", (0, 0, 64, 20)),  # snuffed, relics gone
+    emptied(reliq[3], ("bone-", "gilt-", "bronze-", "blood-", "flesh-", "ember-"), "void-0", (14, 14, 54, 54)),
+]
 GILT_TO_WOOD = {"gilt-0": "leather-0", "gilt-1": "leather-1", "gilt-2": "leather-2", "gilt-3": "leather-3"}
 SHEETS = {
     "weapons_stuck": stuck,
@@ -375,6 +407,7 @@ SHEETS = {
     "walls": [ruins[1], ruins[2]],
     "rubble": [recolour(drop_islands(knock_out(quadrant("stones_grid", 0), ("steel-1",)), 12), STONE_DIM),
                recolour(quadrant("stones_stakes_grid", 1), STONE_DIM)],
+    "reliquaries": reliq + reliq_open,
     "statues": [ruins[3], beheaded(ruins[3], (50, 6, 68, 22), (90, 100))],
     "trees": [load("C_tree_marked"), recolour(load("tree_splintered"), GILT_TO_WOOD), lit_left(load("tree_gallows"), "leather-2")],
 }

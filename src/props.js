@@ -29,7 +29,7 @@ export const PROPS = {
   pillar: { sheet: "pillars_hd", size: 128, scale: 0.5, variants: 3, solid: [[-10, -6, 22, 7], [-10, -6, 22, 7], [-22, -8, 40, 8]], large: true },
   wall: { sheet: "walls_hd", size: 128, scale: 0.5, variants: 2, solid: [[-24, -8, 46, 9], [-23, -8, 48, 9]], large: true },
   statue: { sheet: "statues_hd", size: 128, scale: 0.5, variants: 2, solid: [-12, -7, 24, 8], large: true },
-  reliquary: { sheet: "reliquaries", size: 32, variants: 1, solid: [-8, -5, 16, 6], loot: "reliquary", spentOffset: 1, glint: 16 },
+  reliquary: { sheet: "reliquaries_hd", size: 64, scale: 0.5, variants: 4, solid: [-9, -5, 18, 6], loot: "reliquary", spentOffset: 4, glint: 20 },
   rubble: { sheet: "rubble_hd", size: 64, scale: 0.5, variants: 2, solid: [-8, -4, 16, 5] },
   // Ashen forest
   charred_tree: { sheet: "charred_trees_hd", size: 128, scale: 0.5, variants: 3, solid: [[-6, -4, 12, 5], [-10, -4, 20, 5], [-6, -4, 12, 5]], large: true },
