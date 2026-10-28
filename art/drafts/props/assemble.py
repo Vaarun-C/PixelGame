@@ -283,6 +283,67 @@ recolour(swamp_trees[3], BARK_GRAIN)
 ROT_DARK = {"flesh-0": "leather-0", "gilt-3": "rot-3", "gilt-2": "rot-2", "ember-3": "rot-3", "leather-3": "leather-1", "bronze-2": "leather-1"}
 swamp_trees[2] = drop_orphans(recolour(knock_out(quadrant("swamp_rot_grid", 2, 128), ("ash-",)), ROT_DARK))
 REED_DIM = {"bone-1": "ash-3", "bronze-0": "leather-0"}
+# Chapel ruins: one generated grid (pillar, two walls, statue); the broken pillar and the beheaded statue are cut
+# from it by hand; the fallen pillar is a PixelLab edit (crumbled end) of the pillar laid on its side.
+ruins = [drop_islands(knock_out(quadrant("ruins_grid", q, 128), ("bone-0",)), 12) for q in range(4)]
+
+
+def fill(img, seed, names, colour, box):
+    """Flood a region of these colours from a seed, inside a box, with one colour."""
+    px = img.load()
+    todo, seen = [seed], set()
+    while todo:
+        x, y = todo.pop()
+        if (x, y) in seen or not (box[0] <= x < box[2] and box[1] <= y < box[3]) or NAME.get(px[x, y]) not in names:
+            continue
+        seen.add((x, y))
+        px[x, y] = COLORS[colour] + (255,)
+        todo += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+    return img
+
+
+def broken_off(img, x0, x1, at, seed):
+    """Snap a column off: clear everything above a jagged line, the break face in pale stone, outlined."""
+    rng = random.Random(seed)
+    px = img.load()
+    out = img.copy()
+    opx = out.load()
+    cut = at
+    for x in range(img.width):
+        if x0 <= x < x1:
+            cut = max(at - 4, min(at + 6, cut + rng.choice((-2, -1, 0, 1, 2))))
+        for y in range(cut if x0 <= x < x1 else img.height if x0 - 6 <= x < x1 + 6 else 0):
+            if y < (cut if x0 <= x < x1 else at + 8):
+                opx[x, y] = (0, 0, 0, 0)
+        if x0 <= x < x1 and px[x, cut][3]:
+            opx[x, cut] = COLORS["void-0"] + (255,)
+            for y in (cut + 1, cut + 2):
+                opx[x, y] = COLORS["steel-2" if x < (x0 + x1) // 2 else "steel-1"] + (255,)
+    return drop_islands(out, 12)
+
+
+def beheaded(img, head_box, ground_at):
+    """Strike the head off a statue and lay it on the ground beside the plinth."""
+    head = img.crop(head_box).rotate(90, expand=True)
+    out = img.copy()
+    px = out.load()
+    for y in range(head_box[1], head_box[3]):
+        for x in range(head_box[0], head_box[2]):
+            px[x, y] = (0, 0, 0, 0)
+    for x in range(head_box[0], head_box[2]):
+        if px[x, head_box[3]][3]:
+            px[x, head_box[3]] = COLORS["steel-2"] + (255,)
+    out.alpha_composite(head, ground_at)
+    return out
+
+
+ruins[3].paste((0, 0, 0, 0), (96, 110, 128, 128))  # the generator's signature
+# Generated ruin stone came out far brighter than the wanderer (§3): every value down to the ash ramp, moss one step.
+STONE_DIM = {"bone-1": "ash-3", "bone-0": "ash-2", "ash-4": "ash-2", "steel-3": "ash-2", "ash-3": "ash-1", "ash-2": "ash-1",
+             "steel-2": "steel-1", "ash-1": "ash-0", "steel-1": "ash-0", "ash-0": "steel-0", "steel-0": "void-3", "rot-3": "rot-2"}
+fill(ruins[0], (66, 21), {"void-0", "void-3", "void-1", "void-2", "steel-0", "ash-0", "steel-1"}, "steel-2", (54, 14, 80, 28))
+for r in ruins:
+    recolour(r, STONE_DIM)
 GILT_TO_WOOD = {"gilt-0": "leather-0", "gilt-1": "leather-1", "gilt-2": "leather-2", "gilt-3": "leather-3"}
 SHEETS = {
     "weapons_stuck": stuck,
@@ -310,6 +371,11 @@ SHEETS = {
     "swamp_trees": swamp_trees,
     "reeds": [recolour(drop_islands(strip(quadrant("swamp_grid", q), ("void-",), 44), 20), {**STRAW, **REED_DIM}) for q in (0, 1)],
     "drowned_chests": [sunk(rotted(recolour(recolour(quadrant("swamp_grid", 2), WET_WOOD), SOAKED), 5), 33), sunk(rotted(recolour(quadrant("swamp_grid", 3), WET_WOOD), 6), 32)],
+    "pillars": [ruins[0], broken_off(ruins[0], 50, 82, 58, 7), drop_orphans(load("pillar_fallen_edit_482_0"))],
+    "walls": [ruins[1], ruins[2]],
+    "rubble": [recolour(drop_islands(knock_out(quadrant("stones_grid", 0), ("steel-1",)), 12), STONE_DIM),
+               recolour(quadrant("stones_stakes_grid", 1), STONE_DIM)],
+    "statues": [ruins[3], beheaded(ruins[3], (50, 6, 68, 22), (90, 100))],
     "trees": [load("C_tree_marked"), recolour(load("tree_splintered"), GILT_TO_WOOD), lit_left(load("tree_gallows"), "leather-2")],
 }
 
