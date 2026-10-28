@@ -37,7 +37,7 @@ const IMAGES = {
   items_hd: "art/items/item_icons_hd.png",
   ...Object.fromEntries(BIOMES.map(({ id }) => [`${id}_ground`, `art/tiles/${id}/${id}_ground.png`])),
   ...Object.fromEntries(Object.values(PROPS).map(({ sheet }) => [sheet, `art/props/${sheet}.png`])),
-  ...Object.fromEntries(CHARACTERS.flatMap((n) => ["idle", "walk"].map((a) => [`${n}_${a}`, `art/characters/${n}/${n}_${a}.png`]))),
+  ...Object.fromEntries(CHARACTERS.flatMap((n) => ["idle", "walk"].map((a) => [`${n}_${a}`, `art/characters/${n}/${n}_hd_${a}.png`]))),
   ...Object.fromEntries(["idle", "walk", "light", "heavy"].map((a) => [`wanderer_${a}`, `art/characters/wanderer_hd/wanderer_hd_${a}.png`])),
   ...Object.fromEntries(["idle", "walk", "attack", "death"].map((a) => [`hollow_${a}`, `art/enemies/hollow_hd/hollow_hd_${a}.png`])),
 };
@@ -58,7 +58,7 @@ function loadImage(src) {
 async function loadImages() {
   const entries = await Promise.all(Object.entries(IMAGES).map(async ([name, src]) => [name, await loadImage(src)]));
   const images = Object.fromEntries(entries);
-  for (const n of CHARACTERS) images[n] = { idle: images[`${n}_idle`], walk: images[`${n}_walk`] };
+  for (const n of CHARACTERS) images[n] = { idle: images[`${n}_idle`], walk: images[`${n}_walk`], frame: FODDER_RES };
   images.wanderer = { idle: images.wanderer_idle, walk: images.wanderer_walk, frame: HIGH_RES };
   images.hollow = {
     idle: images.hollow_idle, walk: images.hollow_walk, frame: FODDER_RES,

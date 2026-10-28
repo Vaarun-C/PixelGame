@@ -46,7 +46,7 @@ Browser game in plain JavaScript (ES modules) on a canvas. No build step and no 
 
 Regenerate placeholder art: `.venv/bin/python tools/gen_placeholder_<character|terrain|props|items>.py`
 
-Rebuild the HD sheets from the chosen PixelLab drafts: `.venv/bin/python art/drafts/wanderer/assemble.py` (player) and `.venv/bin/python art/drafts/hollow/assemble.py` (Hollow); battlefield props (`*_hd` sheets in art/props): `art/drafts/props/fix_stuck.py`, `combine_tree.py`, then `assemble.py`
+Rebuild the HD sheets from the chosen PixelLab drafts: `.venv/bin/python art/drafts/wanderer/assemble.py` (player), `.venv/bin/python art/drafts/hollow/assemble.py` (Hollow) and `.venv/bin/python art/drafts/villagers/assemble.py` (villagers); battlefield props (`*_hd` sheets in art/props): `art/drafts/props/fix_stuck.py`, `combine_tree.py`, then `assemble.py`
 
 ## Layout
 
