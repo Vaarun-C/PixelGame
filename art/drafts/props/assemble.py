@@ -379,17 +379,19 @@ reliq_open = [
 # Village: four huts and a hall, a stall, wells and a firepit; the stockade is rebuilt log by log so its tiles join.
 THATCH = {"gilt-3": "bronze-2", "gilt-2": "bronze-1", "gilt-1": "leather-1", "gilt-0": "leather-0"}
 AWNING = {"blood-4": "blood-2", "blood-3": "blood-1", "blood-2": "blood-1"}
-huts = [knock_out(quadrant("village_huts_grid", q, 128), ("steel-3", "ash-4")) for q in range(4)]
-recolour(huts[1], THATCH)
+# Mirrored: the generator lit them from the top-right (§2).
+huts = [knock_out(quadrant("village_huts_grid", q, 128), ("steel-3", "ash-4")).transpose(Image.FLIP_LEFT_RIGHT) for q in range(4)]
+recolour(huts[1], {**THATCH, "bronze-2": "bronze-1"})
 hall = knock_out(quadrant("village_build_grid", 0, 128), ("ash-3",))
 stall = recolour(strip(knock_out(quadrant("village_build_grid", 1, 128), ("ash-3",)), ("ash-3",)), AWNING)
-wells = [drop_islands(strip(quadrant("village_wells_grid", q), ("rot-", "gilt-"), 36), 12) for q in range(3)]
+wells = [recolour(drop_islands(strip(quadrant("village_wells_grid", q), ("rot-", "gilt-"), 36), 12), STONE_DIM) for q in range(3)]
 firepit = quadrant("village_small_grid", 2)
 
 
 def stockade_logs(q, first, count):
     section = knock_out(quadrant("village_stockade_grid", q, 128), ("ash-",))
-    return [widened(section.crop((first + 14 * k, 0, first + 14 * k + 14, 128)), 16) for k in range(count)]
+    logs = [section.crop((first + 14 * k, 0, first + 14 * k + 14, 128)) for k in range(count)]
+    return [widened(log.crop((*log.getbbox()[:1], 0, log.getbbox()[2], 128)), 16) for log in logs]
 
 
 def widened(log, width):
@@ -427,7 +429,9 @@ logs = stockade_logs(0, 15, 7) + stockade_logs(1, 11, 7)
 torch = knock_out(quadrant("village_stockade_grid", 2, 128), ("ash-",))
 flame = torch.crop(torch.getbbox()).crop((0, 0, torch.getbbox()[2] - torch.getbbox()[0], 30))
 flame = flame.crop(flame.getbbox())
-palisade = [row_of(logs[0:4]), row_of(logs[3:7]), row_of(logs[7:11]), row_of(logs[9:13]), lone(logs[1]), lone(logs[9]), torch_on(row_of(logs[2:6]), flame)]
+palisade = [recolour(drop_orphans(tile), {"void-1": "void-0"}) for tile in (
+    row_of(logs[1:5]), row_of(logs[2:6]), row_of(logs[7:11]), row_of(logs[8:12]), lone(logs[1]), lone(logs[9]),
+    torch_on(row_of(logs[2:6]), flame))]
 GILT_TO_WOOD = {"gilt-0": "leather-0", "gilt-1": "leather-1", "gilt-2": "leather-2", "gilt-3": "leather-3"}
 SHEETS = {
     "weapons_stuck": stuck,
