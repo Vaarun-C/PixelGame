@@ -22,9 +22,9 @@ export const PROPS = {
   banner: { sheet: "banners_hd", size: 128, scale: 0.5, variants: 2, large: true },
   remains: { sheet: "remains_hd", size: 64, scale: 0.5, variants: 6, flat: true },
   // Rot swamp
-  swamp_tree: { sheet: "swamp_trees", size: 64, variants: 2, solid: [-5, -4, 10, 5], large: true },
-  reeds: { sheet: "reeds", size: 32, variants: 3 },
-  drowned_chest: { sheet: "drowned_chests", size: 32, variants: 2, solid: [-7, -5, 14, 6], loot: "chest", glint: 14 },
+  swamp_tree: { sheet: "swamp_trees_hd", size: 128, scale: 0.5, variants: 4, solid: [[-6, -4, 12, 5], [-6, -4, 12, 5], [-4, -4, 12, 5], [-6, -4, 12, 5]], large: true },
+  reeds: { sheet: "reeds_hd", size: 64, scale: 0.5, variants: 2 },
+  drowned_chest: { sheet: "drowned_chests_hd", size: 64, scale: 0.5, variants: 2, solid: [-8, -5, 16, 6], loot: "chest", glint: 22 },
   // Chapel ruins
   pillar: { sheet: "pillars", size: 64, variants: 3, solid: [[-8, -4, 16, 5], [-8, -4, 16, 5], [-24, -12, 48, 10]], large: true },
   wall: { sheet: "walls", size: 64, variants: 2, solid: [[-26, -6, 56, 7], [-22, -6, 40, 7]], large: true },
