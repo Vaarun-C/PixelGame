@@ -32,15 +32,15 @@ export const PROPS = {
   reliquary: { sheet: "reliquaries", size: 32, variants: 1, solid: [-8, -5, 16, 6], loot: "reliquary", spentOffset: 1, glint: 16 },
   rubble: { sheet: "rubble", size: 32, variants: 3, flat: true },
   // Ashen forest
-  charred_tree: { sheet: "charred_trees", size: 64, variants: 3, solid: [-4, -4, 8, 5], large: true },
-  charred_stump: { sheet: "charred_stumps", size: 32, variants: 2, solid: [-5, -4, 10, 5] },
-  embers: { sheet: "embers", size: 32, variants: 2, flat: true },
-  pyre: { sheet: "pyres", size: 64, variants: 1, solid: [-18, -14, 36, 12], loot: "pyre", spentOffset: 1, glint: 26, large: true },
+  charred_tree: { sheet: "charred_trees_hd", size: 128, scale: 0.5, variants: 3, solid: [[-6, -4, 12, 5], [-10, -4, 20, 5], [-6, -4, 12, 5]], large: true },
+  charred_stump: { sheet: "charred_stumps_hd", size: 64, scale: 0.5, variants: 2, solid: [-7, -4, 14, 5] },
+  embers: { sheet: "embers_hd", size: 64, scale: 0.5, variants: 2, flat: true },
+  pyre: { sheet: "pyres_hd", size: 128, scale: 0.5, variants: 1, solid: [-18, -14, 36, 12], loot: "pyre", spentOffset: 1, glint: 26, large: true },
   // Frozen pass
-  frozen_tree: { sheet: "frozen_trees", size: 64, variants: 2, solid: [-4, -4, 8, 5], large: true },
-  cairn: { sheet: "cairns", size: 32, variants: 2, solid: [-6, -4, 12, 5] },
-  ice_tomb: { sheet: "ice_tombs", size: 32, variants: 2, solid: [-6, -4, 12, 5], loot: "tomb", spentOffset: 2, glint: 18 },
-  ice_spike: { sheet: "ice_spikes", size: 32, variants: 2, solid: [-5, -3, 10, 4] },
+  frozen_tree: { sheet: "frozen_trees_hd", size: 128, scale: 0.5, variants: 2, solid: [-6, -4, 12, 5], large: true },
+  cairn: { sheet: "cairns_hd", size: 64, scale: 0.5, variants: 2, solid: [-6, -4, 12, 5] },
+  ice_tomb: { sheet: "ice_tombs_hd", size: 64, scale: 0.5, variants: 2, solid: [-6, -4, 12, 5], loot: "tomb", spentOffset: 2, glint: 18 },
+  ice_spike: { sheet: "ice_spikes_hd", size: 64, scale: 0.5, variants: 2, solid: [-5, -3, 10, 4] },
   // Village (placed by the village layout, not by spawn odds)
   hut: { sheet: "huts", size: 64, variants: 5, solid: [[-18, -10, 36, 11], [-16, -10, 32, 11], [-28, -10, 56, 11], [-18, -10, 36, 11], [-18, -10, 36, 11]] },
   palisade: {
