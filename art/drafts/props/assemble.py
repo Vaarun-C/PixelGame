@@ -376,6 +376,58 @@ reliq_open = [
                     ("gilt-", "ember-"), "void-2", (30, 30, 40, 42)), ("bone-",), "ash-2", (0, 0, 64, 20)),  # snuffed, relics gone
     emptied(reliq[3], ("bone-", "gilt-", "bronze-", "blood-", "flesh-", "ember-"), "void-0", (14, 14, 54, 54)),
 ]
+# Village: four huts and a hall, a stall, wells and a firepit; the stockade is rebuilt log by log so its tiles join.
+THATCH = {"gilt-3": "bronze-2", "gilt-2": "bronze-1", "gilt-1": "leather-1", "gilt-0": "leather-0"}
+AWNING = {"blood-4": "blood-2", "blood-3": "blood-1", "blood-2": "blood-1"}
+huts = [knock_out(quadrant("village_huts_grid", q, 128), ("steel-3", "ash-4")) for q in range(4)]
+recolour(huts[1], THATCH)
+hall = knock_out(quadrant("village_build_grid", 0, 128), ("ash-3",))
+stall = recolour(strip(knock_out(quadrant("village_build_grid", 1, 128), ("ash-3",)), ("ash-3",)), AWNING)
+wells = [drop_islands(strip(quadrant("village_wells_grid", q), ("rot-", "gilt-"), 36), 12) for q in range(3)]
+firepit = quadrant("village_small_grid", 2)
+
+
+def stockade_logs(q, first, count):
+    section = knock_out(quadrant("village_stockade_grid", q, 128), ("ash-",))
+    return [widened(section.crop((first + 14 * k, 0, first + 14 * k + 14, 128)), 16) for k in range(count)]
+
+
+def widened(log, width):
+    """Stretch a log to a tile-friendly width by repeating its middle column."""
+    while log.width < width:
+        mid = log.width // 2
+        out = Image.new("RGBA", (log.width + 1, log.height))
+        out.paste(log.crop((0, 0, mid + 1, log.height)), (0, 0))
+        out.paste(log.crop((mid, 0, log.width, log.height)), (mid + 1, 0))
+        log = out
+    return log
+
+
+def row_of(logs):
+    out = Image.new("RGBA", (128, 128))
+    for k, log in enumerate(logs):
+        out.alpha_composite(log, (32 + 16 * k, 0))
+    return out
+
+
+def lone(log):
+    out = Image.new("RGBA", (128, 128))
+    out.alpha_composite(log, (56, 0))
+    return out
+
+
+def torch_on(row, flame, x=56):
+    """A wall tile with a torch burning on the log at x (corner and gate posts)."""
+    top = min(y for y in range(row.height) if row.getpixel((x, y))[3])
+    row.alpha_composite(flame, (x - flame.width // 2, top - flame.height + 4))
+    return row
+
+
+logs = stockade_logs(0, 15, 7) + stockade_logs(1, 11, 7)
+torch = knock_out(quadrant("village_stockade_grid", 2, 128), ("ash-",))
+flame = torch.crop(torch.getbbox()).crop((0, 0, torch.getbbox()[2] - torch.getbbox()[0], 30))
+flame = flame.crop(flame.getbbox())
+palisade = [row_of(logs[0:4]), row_of(logs[3:7]), row_of(logs[7:11]), row_of(logs[9:13]), lone(logs[1]), lone(logs[9]), torch_on(row_of(logs[2:6]), flame)]
 GILT_TO_WOOD = {"gilt-0": "leather-0", "gilt-1": "leather-1", "gilt-2": "leather-2", "gilt-3": "leather-3"}
 SHEETS = {
     "weapons_stuck": stuck,
@@ -408,6 +460,11 @@ SHEETS = {
     "rubble": [recolour(drop_islands(knock_out(quadrant("stones_grid", 0), ("steel-1",)), 12), STONE_DIM),
                recolour(quadrant("stones_stakes_grid", 1), STONE_DIM)],
     "reliquaries": reliq + reliq_open,
+    "huts": huts + [hall],
+    "stall": [stall],
+    "wells": wells,
+    "firepit": [firepit],
+    "palisade": palisade,
     "statues": [ruins[3], beheaded(ruins[3], (50, 6, 68, 22), (90, 100))],
     "trees": [load("C_tree_marked"), recolour(load("tree_splintered"), GILT_TO_WOOD), lit_left(load("tree_gallows"), "leather-2")],
 }

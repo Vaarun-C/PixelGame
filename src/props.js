@@ -42,17 +42,18 @@ export const PROPS = {
   ice_tomb: { sheet: "ice_tombs_hd", size: 64, scale: 0.5, variants: 2, solid: [-6, -4, 12, 5], loot: "tomb", spentOffset: 2, glint: 18 },
   ice_spike: { sheet: "ice_spikes_hd", size: 64, scale: 0.5, variants: 2, solid: [-5, -3, 10, 4] },
   // Village (placed by the village layout, not by spawn odds)
-  hut: { sheet: "huts", size: 64, variants: 5, solid: [[-18, -10, 36, 11], [-16, -10, 32, 11], [-28, -10, 56, 11], [-18, -10, 36, 11], [-18, -10, 36, 11]] },
+  hut: { sheet: "huts_hd", size: 128, scale: 0.5, variants: 5, solid: [[-20, -12, 40, 13], [-20, -12, 40, 13], [-20, -12, 40, 13], [-18, -12, 36, 13], [-22, -8, 44, 9]] },
   palisade: {
-    sheet: "palisade",
-    size: 32,
+    sheet: "palisade_hd",
+    size: 128,
+    scale: 0.5,
     variants: 7,
-    solid: [[-16, -6, 32, 8], [-16, -6, 32, 8], [-16, -6, 32, 8], [-16, -6, 32, 8], [-4, -28, 8, 32], [-4, -28, 8, 32], [-3, -6, 6, 8]],
+    solid: [[-16, -6, 32, 8], [-16, -6, 32, 8], [-16, -6, 32, 8], [-16, -6, 32, 8], [-4, -28, 8, 32], [-4, -28, 8, 32], [-16, -6, 32, 8]],
   },
   village_crate: { sheet: "crates_hd", size: 64, scale: 0.5, variants: 4, solid: [-7, -5, 14, 6] },
-  well: { sheet: "well", size: 32, variants: 1, solid: [-9, -5, 18, 7] },
-  firepit: { sheet: "firepit", size: 32, variants: 1, flat: true },
-  stall: { sheet: "stall", size: 64, variants: 1, solid: [-19, -8, 38, 9] },
+  well: { sheet: "wells_hd", size: 64, scale: 0.5, variants: 3, solid: [-9, -5, 18, 7] },
+  firepit: { sheet: "firepit_hd", size: 64, scale: 0.5, variants: 1, flat: true },
+  stall: { sheet: "stall_hd", size: 128, scale: 0.5, variants: 1, solid: [-19, -8, 38, 9] },
 };
 
 export function solidBox(prop) {

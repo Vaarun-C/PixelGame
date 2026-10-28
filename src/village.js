@@ -63,7 +63,7 @@ function pickSlots(seed, salt, slots, count) {
 function layoutFor(centre) {
   if (layouts.has(centre.key)) return layouts.get(centre.key);
   const { seed } = centre;
-  const layout = { "0,0": ["well", 0], [STALL.join()]: ["stall", 0] };
+  const layout = { "0,0": ["well", seed % 3], [STALL.join()]: ["stall", 0] };
   layout[pickSlots(seed, 1, FIREPIT_SLOTS, 1)[0].join()] = ["firepit", 0];
   for (const slot of pickSlots(seed, 2, HUT_SLOTS, 4 + (seed % 3))) layout[slot.join()] = ["hut", pick(seed, slot, HUT_VARIANTS)];
   for (const slot of pickSlots(seed, 3, CRATE_SLOTS, 2 + (seed % 2))) layout[slot.join()] = ["village_crate", pick(seed, slot, 3)];
