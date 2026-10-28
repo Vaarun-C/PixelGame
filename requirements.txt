@@ -1,0 +1,2 @@
+# Python tools for art (tools/ and art/drafts/). The game itself needs nothing: plain JavaScript in the browser.
+pillow==13.0.0

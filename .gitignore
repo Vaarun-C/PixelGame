@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets: PIXELLAB_API_KEY lives here
+.env
+
+# OS and editor clutter
+.DS_Store
+.idea/
+.vscode/
+
+# Claude Code session state (the art-reviewer agent in .claude/agents is kept)
+.claude/scheduled_tasks.lock
+.claude/settings.local.json

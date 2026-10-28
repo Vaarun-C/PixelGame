@@ -1,0 +1,66 @@
+GIMP Palette
+Name: Master
+Columns: 8
+#
+ 11  10  13	void-0
+ 22  20  26	void-1
+ 34  30  38	void-2
+ 47  42  51	void-3
+ 61  56  64	ash-0
+ 85  78  85	ash-1
+111 103 108	ash-2
+140 131 134	ash-3
+170 160 160	ash-4
+201 188 174	bone-0
+227 215 195	bone-1
+ 90  63  58	flesh-0
+125  90  79	flesh-1
+160 123 104	flesh-2
+192 156 132	flesh-3
+ 42  15  16	blood-0
+ 74  20  22	blood-1
+110  28  28	blood-2
+146  42  34	blood-3
+176  64  44	blood-4
+ 43  34  32	leather-0
+ 63  48  41	leather-1
+ 87  66  52	leather-2
+114  90  68	leather-3
+ 31  36  25	rot-0
+ 47  56  37	rot-1
+ 70  81  52	rot-2
+ 95 106  69	rot-3
+ 42  48  56	steel-0
+ 58  68  80	steel-1
+ 90 104 120	steel-2
+132 149 166	steel-3
+122  52  16	ember-0
+192  96  26	ember-1
+232 154  58	ember-2
+255 217 160	ember-3
+ 74  58  24	gilt-0
+122  98  38	gilt-1
+168 138  60	gilt-2
+205 180 106	gilt-3
+ 62  38  22	bronze-0
+106  66  38	bronze-1
+147  97  58	bronze-2
+185 134  87	bronze-3
+111 138 143	rune-pale-dark
+169 198 200	rune-pale-mid
+230 244 242	rune-pale-core
+ 30  79 122	rune-azure-dark
+ 61 143 209	rune-azure-mid
+159 216 255	rune-azure-core
+ 74  31 110	rune-violet-dark
+138  63 209	rune-violet-mid
+214 166 255	rune-violet-core
+ 47  90  18	rune-venom-dark
+127 209  42	rune-venom-mid
+217 255 138	rune-venom-core
+122  84  16	rune-gold-dark
+224 168  42	rune-gold-mid
+255 241 176	rune-gold-core
+ 90   0  16	rune-crimson-dark
+224  16  58	rune-crimson-mid
+255 138 154	rune-crimson-core
