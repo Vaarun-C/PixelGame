@@ -21,6 +21,7 @@ The art rulebook for the game. Every sprite, tile, icon, effect and UI element m
 |---|---|
 | Perspective | Top-down 3/4 (camera ~45° above). Front faces and tops of objects are both visible. |
 | Tile grid | **32×32 px**. All environment art snaps to this grid. |
+| Ground tiles (2× art) | **64×64 px**, one per 32 px grid cell, drawn at native pixels like the other 2× art. Built by `tools/gen_ground_hd.py`. |
 | Player / humanoid canvas | **32×48 px**. Feet sit on the bottom 4 px; body height is ~40 px. |
 | Player canvas (2× art) | **96×96 px**. Body ~88 px tall, centered; the extra width holds the oversized greatsword. Approved concept: `art/drafts/wanderer/approved/`. |
 | Player attack canvas (2× art) | **128×144 px**. The 96×96 body sits bottom-centered (feet at y=142) with room above and beside it for the swing. |
@@ -153,7 +154,7 @@ Runes are the heart of the game and must be the most polished art in it.
 
 ### Rune-infused gear
 
-Gear with a socketed rune shows **only small accents** in the tier color: an engraved line, a gem socket, a glowing edge on the blade. Keep the rest of the gear in world colors.
+Gear with a lashed rune shows **only small accents** in the tier color: the lashed stone itself, an engraved line, a glowing edge on the blade. The lashing (wire or cord) and the rest of the gear stay in world colors.
 
 ---
 

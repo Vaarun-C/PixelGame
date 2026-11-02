@@ -75,7 +75,12 @@ def edit(src, out, instruction, seed=0):
     image = base64.b64encode(Path(src).read_bytes()).decode()
     job = post("edit-image-pro-flash", {"image": {"type": "base64", "base64": image, "format": "png"},
                                         "description": instruction, "no_background": True, "seed": seed})
-    return wait_for(job["background_job_id"])
+    save_edit(wait_for(job["background_job_id"]), out)
+
+
+def save_edit(job, out):
+    Path(out).write_bytes(base64.b64decode(job["last_response"]["images"][0]["base64"]))
+    print("saved", out)
 
 
 def animate(src, out_dir, action, frames, seed=0, last=None):

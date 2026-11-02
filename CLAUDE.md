@@ -46,7 +46,7 @@ Browser game in plain JavaScript (ES modules) on a canvas. No build step and no 
 
 Regenerate placeholder art: `.venv/bin/python tools/gen_placeholder_<character|terrain|props|items>.py`
 
-Rebuild the HD sheets from the chosen PixelLab drafts: `.venv/bin/python art/drafts/wanderer/assemble.py` (player), `.venv/bin/python art/drafts/hollow/assemble.py` (Hollow) and `.venv/bin/python art/drafts/villagers/assemble.py` (villagers); battlefield props (`*_hd` sheets in art/props): `art/drafts/props/fix_stuck.py`, `combine_tree.py`, then `assemble.py`
+Rebuild the HD sheets from the chosen PixelLab drafts: `.venv/bin/python art/drafts/wanderer/assemble.py` (player), `.venv/bin/python art/drafts/hollow/assemble.py` (Hollow) and `.venv/bin/python art/drafts/villagers/assemble.py` (villagers); battlefield props (`*_hd` sheets in art/props): `art/drafts/props/fix_stuck.py`, `combine_tree.py`, then `assemble.py`; the prologue's dead man, kneel and cutscene close-ups: `art/drafts/prologue/assemble.py` (drafts from `generate.py`; copy `art/props/dead_man_hd.png`, `art/cutscenes/*.png` and `wanderer_hd_kneel.png` into the same paths under `godot/art/`)
 
 ## Layout
 
@@ -81,5 +81,6 @@ art/drafts/ui/          inventory mockups (mockup.py), 5x7 font source (font5x7.
 tools/ground_tiles.py seamless 64px ground tiles and corner-mask bank overlays from a texture patch (draft, unused)
 tools/gen_placeholder_*.py   placeholder character, terrain, prop and item art
 requirements.txt      Python dependencies (.venv)
-.claude/agents/       art-reviewer agent
+lore/                 story and world canon (Characters, Organizations, Runes, Mechanics, Gods, Locations, Timeline), kept by the loremaster agent; view with tools/build_lore_page.py
+.claude/agents/       art-reviewer and loremaster agents
 ```
