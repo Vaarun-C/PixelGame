@@ -1,0 +1,219 @@
+<title>The Lore Archive</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Pirata+One&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Archive: a shelf of folders on the left, one open file on the right. Single dark look on purpose; colors are the game's master palette. */
+:root {
+  color-scheme: dark;
+  --void: #0B0A0D;
+  --page: #16141A;
+  --rule: #2F2A33;
+  --ash: #8C8386;
+  --ash-dim: #554E55;
+  --bone: #E3D7C3;
+  --parch: #C9BCAE;
+  --ember: #E89A3A;
+  --ember-dim: #7A3410;
+  --display: "Pirata One", Georgia, serif;
+  --caps: "IM Fell English SC", Georgia, serif;
+  --body: "Spectral", "Iowan Old Style", Georgia, serif;
+}
+html, body { background: var(--void); color: var(--parch); }
+body {
+  font-family: var(--body);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 1.5rem 4rem;
+}
+.shell { max-width: 72rem; margin: 0 auto; display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+header.mast { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1.5rem; border-bottom: 1px solid var(--rule); padding-bottom: .8rem; }
+.mast h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2rem, 6vw, 3rem); line-height: 1; margin: 0; color: var(--bone); }
+.mast h1 a { color: inherit; text-decoration: none; }
+.mast .count { font-family: var(--caps); color: var(--ash); letter-spacing: .08em; font-size: .9rem; }
+
+nav.shelf { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1rem); display: grid; gap: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; padding-right: .3rem; }
+#search { width: 100%; box-sizing: border-box; background: var(--page); border: 1px solid var(--rule); color: var(--bone); font: inherit; font-size: .95rem; padding: .45rem .6rem; }
+#search::placeholder { color: var(--ash-dim); }
+#search:focus { outline: 1px solid var(--ember); outline-offset: 0; }
+.folder { display: grid; gap: .1rem; }
+.folder h2 { font-family: var(--caps); font-weight: 400; font-size: .85rem; letter-spacing: .16em; color: var(--ash); margin: 0 0 .2rem; text-transform: uppercase; }
+.folder a { color: var(--parch); text-decoration: none; font-size: .95rem; padding: .12rem 0 .12rem .7rem; border-left: 1px solid var(--rule); }
+.folder a:hover { color: var(--bone); border-left-color: var(--ash); }
+.folder a[aria-current="page"] { color: var(--bone); border-left-color: var(--ember); }
+.folder a .hits { color: var(--ember); font-size: .8rem; margin-left: .35rem; }
+.empty { color: var(--ash-dim); font-style: italic; font-size: .9rem; }
+
+main { min-width: 0; }
+.crumb { font-family: var(--caps); letter-spacing: .14em; font-size: .85rem; color: var(--ember); }
+article { max-width: 42rem; display: grid; gap: .9rem; }
+article > * { margin: 0; }
+article h1 { font-family: var(--display); font-weight: 400; font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.05; color: var(--bone); text-wrap: balance; }
+article h2 { font-family: var(--caps); font-weight: 400; font-size: 1.25rem; letter-spacing: .1em; color: var(--bone); margin-top: 1rem; padding-bottom: .25rem; border-bottom: 1px solid var(--rule); }
+article h3 { font-family: var(--caps); font-weight: 400; font-size: 1.05rem; letter-spacing: .06em; color: var(--bone); margin-top: .5rem; }
+article h4 { font-weight: 600; color: var(--bone); }
+article a { color: var(--ember); text-decoration-color: var(--ember-dim); text-underline-offset: 3px; }
+article strong { color: var(--bone); font-weight: 600; }
+article del { color: var(--ash-dim); }
+article ul, article ol { padding-left: 1.3rem; display: grid; gap: .3rem; }
+article li > ul, article li > ol { margin-top: .3rem; }
+article blockquote { border-left: 1px solid var(--ember-dim); padding-left: 1rem; color: var(--bone); font-style: italic; }
+article code { font-size: .9em; color: var(--bone); background: var(--page); padding: 0 .25rem; }
+article pre { background: var(--page); border: 1px solid var(--rule); padding: .8rem; overflow-x: auto; }
+article pre code { background: none; padding: 0; }
+article hr { border: 0; border-top: 1px solid var(--rule); }
+.table-wrap { overflow-x: auto; }
+article table { border-collapse: collapse; font-size: .95rem; min-width: 100%; }
+article th, article td { border-bottom: 1px solid var(--rule); padding: .4rem .7rem .4rem 0; text-align: left; vertical-align: top; }
+article th { font-family: var(--caps); font-weight: 400; color: var(--ash); letter-spacing: .06em; }
+
+/* Open threads and rejected ideas are not canon; mark them so they never read as fact. */
+section.kind-open, section.kind-rejected { display: grid; gap: .9rem; padding-left: 1rem; border-left: 1px dashed var(--ember-dim); }
+section.kind-canon { display: grid; gap: .9rem; }
+section.kind-rejected { border-left-color: var(--ash-dim); color: var(--ash); }
+section.kind-open > h2::after, section.kind-rejected > h2::after { font-family: var(--body); font-style: italic; letter-spacing: 0; font-size: .85rem; color: var(--ash); margin-left: .6rem; }
+section.kind-open > h2::after { content: "not canon"; }
+section.kind-rejected > h2::after { content: "turned down"; }
+mark { background: var(--ember-dim); color: var(--bone); }
+
+/* Sprites shown at an integer 3x (frames are 96px tall). */
+.sprites { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; }
+.sprites figure { margin: 0; display: grid; gap: .3rem; justify-items: center; background: var(--page); border: 1px solid var(--rule); padding: .6rem .8rem .4rem; }
+.sprites img { height: 288px; width: auto; max-width: 100%; image-rendering: pixelated; }
+.sprites figcaption { font-family: var(--caps); letter-spacing: .08em; font-size: .85rem; color: var(--ash); }
+@media (max-width: 30rem) { .sprites img { height: 192px; } }
+
+a:focus-visible { outline: 1px solid var(--ember); outline-offset: 3px; }
+
+@media (max-width: 52rem) {
+  .shell { grid-template-columns: 1fr; gap: 1.5rem; }
+  nav.shelf { position: static; max-height: none; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
+  nav.shelf > #search, nav.shelf > .empty { grid-column: 1 / -1; }
+}
+</style>
+
+<div class="shell">
+  <header class="mast">
+    <h1><a href="#readme">The Lore Archive</a></h1>
+    <span class="count" id="count"></span>
+  </header>
+  <nav class="shelf" aria-label="Lore files">
+    <input id="search" type="search" placeholder="Search the lore" aria-label="Search the lore">
+    <div id="folders"></div>
+  </nav>
+  <main>
+    <div class="crumb" id="crumb"></div>
+    <article id="doc"></article>
+  </main>
+</div>
+
+<script id="lore-data" type="application/json">/*LORE_DATA*/</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+const FOLDERS = ["Characters", "Organizations", "Runes", "Mechanics", "Gods", "Locations", "Timeline"];
+const files = JSON.parse(document.getElementById("lore-data").textContent);
+const idOf = path => path.replace(/\.md$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const byId = Object.fromEntries(Object.keys(files).map(p => [idOf(p), p]));
+const titleOf = path => (files[path].match(/^#\s+(.+)$/m) || [, path.split("/").pop().replace(/\.md$/, "")])[1];
+const folderOf = path => path.includes("/") ? path.split("/")[0] : "";
+
+document.getElementById("count").textContent = `${Object.keys(files).length} files`;
+
+function renderShelf(query) {
+  const q = query.trim().toLowerCase();
+  const groups = [["", "Archive"], ...FOLDERS.map(f => [f, f])];
+  const current = byId[location.hash.slice(1)] || "README.md";
+  let shown = 0;
+  const html = groups.map(([folder, label]) => {
+    const links = Object.keys(files)
+      .filter(p => folderOf(p) === folder)
+      .sort((a, b) => a === "README.md" ? -1 : b === "README.md" ? 1 : titleOf(a).localeCompare(titleOf(b)))
+      .map(p => {
+        const hits = q ? files[p].toLowerCase().split(q).length - 1 : 0;
+        if (q && !hits) return "";
+        shown++;
+        const cur = p === current ? ' aria-current="page"' : "";
+        return `<a href="#${idOf(p)}"${cur}>${titleOf(p)}${q ? `<span class="hits">${hits}</span>` : ""}</a>`;
+      }).join("");
+    return links ? `<div class="folder"><h2>${label}</h2>${links}</div>` : "";
+  }).join("");
+  document.getElementById("folders").innerHTML = html || `<p class="empty">Nothing in the lore matches that.</p>`;
+}
+
+function sectionize(article) {
+  const out = document.createDocumentFragment();
+  let box = out;
+  for (const node of [...article.childNodes]) {
+    if (node.tagName === "H2") {
+      const name = node.textContent.trim().toLowerCase();
+      const kind = name.startsWith("open") ? "open" : name.startsWith("rejected") ? "rejected" : name.startsWith("canon") ? "canon" : "";
+      box = document.createElement("section");
+      if (kind) box.className = `kind-${kind}`;
+      out.appendChild(box);
+    }
+    box.appendChild(node);
+  }
+  article.appendChild(out);
+  article.querySelectorAll("p").forEach(p => {
+    const imgs = p.querySelectorAll("img");
+    if (!imgs.length || p.textContent.trim()) return;
+    const row = document.createElement("div");
+    row.className = "sprites";
+    imgs.forEach(img => {
+      const fig = document.createElement("figure");
+      const cap = document.createElement("figcaption");
+      cap.textContent = img.alt;
+      fig.append(img, cap);
+      row.append(fig);
+    });
+    p.replaceWith(row);
+  });
+  article.querySelectorAll("table").forEach(t => { const w = document.createElement("div"); w.className = "table-wrap"; t.replaceWith(w); w.appendChild(t); });
+}
+
+function highlight(root, q) {
+  if (!q) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const hits = [];
+  while (walker.nextNode()) if (walker.currentNode.nodeValue.toLowerCase().includes(q)) hits.push(walker.currentNode);
+  for (const text of hits) {
+    const frag = document.createDocumentFragment();
+    let rest = text.nodeValue;
+    let i;
+    while ((i = rest.toLowerCase().indexOf(q)) >= 0) {
+      frag.append(rest.slice(0, i));
+      const m = document.createElement("mark");
+      m.textContent = rest.slice(i, i + q.length);
+      frag.append(m);
+      rest = rest.slice(i + q.length);
+    }
+    frag.append(rest);
+    text.replaceWith(frag);
+  }
+  root.querySelector("mark")?.scrollIntoView({ block: "center" });
+}
+
+function show() {
+  const path = byId[location.hash.slice(1)] || "README.md";
+  const doc = document.getElementById("doc");
+  doc.innerHTML = marked.parse(files[path]);
+  doc.querySelectorAll("a[href]").forEach(a => {
+    const href = a.getAttribute("href");
+    if (/^[a-z]+:/i.test(href) || href.startsWith("#")) return;
+    const target = new URL(href.split("#")[0], "https://lore/" + path).pathname.slice(1);
+    if (files[target]) a.setAttribute("href", "#" + idOf(target));
+  });
+  sectionize(doc);
+  document.getElementById("crumb").textContent = folderOf(path) || "Archive";
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  renderShelf(q);
+  if (q) highlight(doc, q); else window.scrollTo(0, 0);
+}
+
+document.getElementById("search").addEventListener("input", e => renderShelf(e.target.value));
+window.addEventListener("hashchange", show);
+show();
+</script>
