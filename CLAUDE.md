@@ -80,6 +80,7 @@ tools/build_sheet.py  assemble frames into a sprite sheet (one row per facing: d
 art/drafts/ui/          inventory mockups (mockup.py), 5x7 font source (font5x7.py), icons.py builds the 32px item/rune icon sheets
 tools/ground_tiles.py seamless 64px ground tiles and corner-mask bank overlays from a texture patch (draft, unused)
 tools/gen_placeholder_*.py   placeholder character, terrain, prop and item art
+dialogue/             villager dialogue model: villagers.json (role whitelists), guard.py (input/output checks), talk.py (reply path), light.py + build.py (data), train_modal.py (fine-tune on Modal), serve.py (vLLM on Modal), eval.py (break-it questions); Godot client in godot/scripts/game/dialogue.gd
 requirements.txt      Python dependencies (.venv)
 lore/                 story and world canon (Characters, Organizations, Runes, Mechanics, Gods, Locations, Timeline), kept by the loremaster agent; view with tools/build_lore_page.py
 .claude/agents/       art-reviewer and loremaster agents

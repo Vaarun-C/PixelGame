@@ -20,6 +20,7 @@ The people behind the stockades: peasants, monks, guards and one barterer per vi
 
 - **Dialogue from a small language model** (design idea, not lore canon): trained on English and this lore; each villager holds only a prompt template with guardrails. The engineering isn't judged here.
 - The **dialogue lore rules** are in the [README](../README.md#ground-rules).
+- **Per-role prompt templates** (game data, not canon; every "knows" line is a claim): [dialogue/villagers.json](../../dialogue/villagers.json).
 
 ## Open
 

@@ -1,2 +1,5 @@
 # Python tools for art (tools/ and art/drafts/). The game itself needs nothing: plain JavaScript in the browser.
 pillow==13.0.0
+# Villager dialogue model (dialogue/): training on Apple silicon and serving on Modal.
+mlx-lm==0.32.2
+modal==1.6.3

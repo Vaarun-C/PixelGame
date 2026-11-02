@@ -58,6 +58,7 @@ var self_bleed := 0.0
 var ui_open := false
 # A cutscene holds him still: no moving, swinging or dodging.
 var frozen := false
+var typing := false
 # A cutscene pose overrides the animation: {"sheet": name, "frame": n}.
 var pose := {}
 # The one meter (LORE.md, Corruption): 0..1. The Whisper from 0.75, the Pull at 1. Nothing raises or
@@ -118,7 +119,7 @@ func _physics_process(dt: float) -> void:
 		if dead <= 0:
 			respawn_now()
 		update_movement(Vector2.ZERO, false, dt)
-	elif frozen:
+	elif frozen or typing:
 		update_movement(Vector2.ZERO, false, dt)
 	else:
 		var dir := Vector2(held(KEY_D, KEY_RIGHT) - held(KEY_A, KEY_LEFT), held(KEY_S, KEY_DOWN) - held(KEY_W, KEY_UP))

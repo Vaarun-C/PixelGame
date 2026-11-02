@@ -1,7 +1,7 @@
 extends CanvasLayer
 
-# Interaction and HUD (the tick in src/main.js, src/ui.js): E searches a lootable prop, talks to a
-# villager or opens the barterer's stall; I or Tab opens the bag; Esc closes. The HUD draws at native
+# Interaction and HUD (the tick in src/main.js, src/ui.js): E searches a lootable prop, opens the
+# talk box to question a villager (the dialogue model, see dialogue.gd) or opens the barterer's stall; I or Tab opens the bag; Esc closes. The HUD draws at native
 # pixels: the keepsake, gothic lettering and gilt titles. The barter panel still draws at the JS
 # game's 1x, scaled by BARTER_SCALE.
 const BARTER_SCALE := 2
@@ -12,6 +12,7 @@ const TITLE_LIFE := 3.0
 const CONTROLS := "WASD move  Click attack  Space dodge  E use  I bag"
 const PANEL := preload("res://scripts/ui/inventory_panel.gd")
 const KEEPSAKE := preload("res://scripts/ui/keepsake_hud.gd")
+const TALK_BOX := preload("res://scripts/ui/talk_box.gd")
 const TITLE_GILT := ["gilt-3", "gilt-3", "gilt-2", "gilt-1"]
 
 var inventory := Inventory.new()
@@ -20,6 +21,8 @@ var titles := Node2D.new()
 var barter_hud := Node2D.new()
 var keepsake := KEEPSAKE.new()
 var panel := PANEL.new()
+var talk_box := TALK_BOX.new()
+var talking = null
 var barter := {}
 var messages := []
 var title := ""
@@ -51,6 +54,8 @@ func _ready() -> void:
 	panel.inventory = inventory
 	panel.player = player
 	add_child(panel)
+	talk_box.text_submitted.connect(ask)
+	add_child(talk_box)
 	player.inventory = inventory
 
 
@@ -64,10 +69,16 @@ func show_title(text: String) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if talking:
+		if event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE:
+			stop_talking()
+			get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
 			KEY_E:
 				interact()
+				get_viewport().set_input_as_handled()
 			KEY_I, KEY_TAB:
 				inventory.open = not inventory.open
 				barter = {}
@@ -99,7 +110,22 @@ func interact() -> void:
 		barter = village
 		inventory.open = false
 	elif target:
-		target.talk()
+		talking = target
+		talking.held = true
+		talk_box.open(screen_size())
+
+
+func ask(question: String) -> void:
+	if question.strip_edges():
+		talking.ask(question.strip_edges())
+	talk_box.clear()
+
+
+func stop_talking() -> void:
+	if is_instance_valid(talking):
+		talking.held = false
+	talking = null
+	talk_box.close()
 
 
 func now() -> float:
@@ -123,7 +149,10 @@ func _process(dt: float) -> void:
 		target = world.nearest_lootable(player.position)
 	if barter and barter.barterer.position.distance_to(player.position) > BARTER_RANGE:
 		barter = {}
-	player.ui_open = inventory.open or not barter.is_empty()
+	if talking and (not is_instance_valid(talking) or talking.position.distance_to(player.position) > TALK_RANGE * 2 or player.dead > 0):
+		stop_talking()
+	player.ui_open = inventory.open or not barter.is_empty() or talking != null
+	player.typing = talking != null
 
 	var name: String = village.name if village else Terrain.biome_at(player.position).name
 	if name != zone and player.dead <= 0:
@@ -169,7 +198,7 @@ func draw_hud() -> void:
 	for v in village.get("villagers", []) + ([village.barterer] if village else []):
 		if v.speech:
 			draw_speech(v.speech, on_hud(v.position) - Vector2(0, 124))
-	if target and barter.is_empty() and player.dead <= 0:
+	if target and barter.is_empty() and not talking and player.dead <= 0:
 		draw_prompt(feet - Vector2(0, 118))
 	draw_messages(feet - Vector2(0, 104))
 

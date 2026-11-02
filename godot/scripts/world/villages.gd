@@ -7,6 +7,8 @@ const RADIUS := 8
 const ROLES := ["peasant", "monk", "guard", "peasant"]
 const NAME_START := ["Grey", "Hollow", "Black", "Thorn", "Grave", "Mire", "Cinder", "Frost", "Ash", "Raven"]
 const NAME_END := ["well", "moor", "hold", "stead", "ford", "barrow", "gate", "fen"]
+const FIRST_NAMES := ["Hild", "Aldo", "Bertram", "Edda", "Osric", "Maud", "Garrick", "Agna", "Ulf", "Gisla", "Bede", "Tilda", "Ham", "Ysolt", "Merek", "Wenna", "Cuthbert", "Elsa", "Jory", "Sabel"]
+const SURNAMES := ["Vosk", "Carr", "Tull", "Brack", "Holt", "Marsh", "Pell", "Rusk", "Crane", "Ashby", "Grieve", "Stave"]
 const LINES := {
 	"peasant": ["The crows eat better than we do.", "Don't drink from the well after dark.", "My son went to the battlefield. The crows came back."],
 	"monk": ["The runes remember what we forget.", "Pray if you like. Nothing listens.", "Every stone out there was once a promise."],
@@ -52,6 +54,11 @@ static func reach(dx: float, dy: float) -> float:
 static func near(world_seed: int, tx: int, ty: int, margin := 1.0) -> Dictionary:
 	var centre := centre_in(world_seed, floori(tx / float(CELL)), floori(ty / float(CELL)))
 	return centre if centre and reach(tx - centre.tx, ty - centre.ty) < RADIUS + margin else {}
+
+
+# A villager's name: first name and surname from their own seed.
+static func villager_name(villager_seed: int) -> String:
+	return FIRST_NAMES[villager_seed % FIRST_NAMES.size()] + " " + SURNAMES[(villager_seed >> 8) % SURNAMES.size()]
 
 
 static func pick(village_seed: int, slot: Vector2i, n: int) -> int:

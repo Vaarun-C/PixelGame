@@ -33,3 +33,4 @@ environment/defaults/default_clear_color=Color(0.043, 0.039, 0.051, 1)
 
 Palette="*res://scripts/palette.gd"
 Effects="*res://scripts/effects.gd"
+Dialogue="*res://scripts/game/dialogue.gd"

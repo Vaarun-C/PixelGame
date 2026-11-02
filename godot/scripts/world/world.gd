@@ -207,8 +207,16 @@ func add_village(holder: Node2D, village: Dictionary, chunk: Vector2i) -> void:
 	barterer.role = "barterer"
 	barterer.position = (centre + Vector2(Villages.STALL) * Terrain.TILE - Vector2(0, 2)) * Terrain.SCALE
 	holder.add_child(barterer)
+	var name: String = Villages.NAME_START[h % Villages.NAME_START.size()] + Villages.NAME_END[(h >> 8) % Villages.NAME_END.size()]
+	for i in villagers.size() + 1:
+		var person: Node = barterer if i == villagers.size() else villagers[i]
+		person.persona_seed = WorldNoise.hash32([h, i, 34])
+		person.villager_name = Villages.villager_name(person.persona_seed)
+		person.village_name = name
+	# Wake the dialogue server as the village loads, so it's up by the time the Wanderer talks.
+	Dialogue.warm()
 	villages[village.key] = {
-		"name": Villages.NAME_START[h % Villages.NAME_START.size()] + Villages.NAME_END[(h >> 8) % Villages.NAME_END.size()],
+		"name": name,
 		"seed": h, "centre": centre * Terrain.SCALE, "villagers": villagers, "barterer": barterer, "chunk": chunk,
 	}
 

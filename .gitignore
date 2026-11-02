@@ -14,3 +14,7 @@ __pycache__/
 # Claude Code session state (the art-reviewer agent in .claude/agents is kept)
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
+dialogue/data/light.jsonl
+dialogue/data/mix/
+dialogue/adapters/
+dialogue/model/
