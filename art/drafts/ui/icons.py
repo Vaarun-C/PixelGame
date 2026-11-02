@@ -3,8 +3,8 @@
 Run from the repo root: .venv/bin/python art/drafts/ui/icons.py
 - art/items/item_icons_hd.png: same column order as item_icons.png (shard, blade, helm, plate, then
   bronze/silver/gold in small, medium, large clumps).
-- art/runes/rune_icons_hd.png: columns are tiers 1-6, rows are types (rend, ward, hunger). The stones
-  are AI-drawn; glyphs, tier glow and halo are drawn here so every tier shares one exact glyph (ART_RULES §5).
+- art/runes/rune_icons_hd.png: columns are tiers 1-6, rows are the subtypes then the fused pairs. The
+  stones are AI-drawn; glyphs, tier glow and halo are drawn here so every tier shares one exact glyph (ART_RULES §5).
 """
 import random
 import sys
@@ -22,16 +22,35 @@ S = 32
 TIERS = ["pale", "azure", "violet", "venom", "gold", "crimson"]
 luma = lambda c: 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
 
-# Glyph strokes on a 14x16 grid, at most 6 strokes each, straight cuts only.
-GLYPHS = {
-    "rend": [((10, 1), (4, 8)), ((4, 8), (10, 8)), ((10, 8), (4, 15)), ((12, 11), (13, 9))],
-    "ward": [((7, 1), (12, 6)), ((12, 6), (7, 15)), ((7, 15), (2, 6)), ((2, 6), (7, 1)), ((7, 4), (7, 11))],
-    "hunger": [((1, 2), (13, 2)), ((1, 2), (7, 15)), ((13, 2), (7, 15)), ((5, 2), (5, 6)), ((9, 2), (9, 6))],
+# Glyphs on a 14x16 grid, straight cuts only: each family has a spine and each subtype adds its marks
+# (lore/Runes/rune-types.md). Order matches godot/scripts/game/rune_book.gd ORDER.
+SPINES = {
+    "grudge": [((3, 1), (11, 15))],
+    "mortmain": [((4, 15), (4, 1)), ((4, 1), (11, 1)), ((11, 1), (11, 5))],
+    "hush": [((3, 1), (3, 14)), ((3, 14), (11, 14)), ((11, 14), (11, 8))],
 }
-KEY_PIXELS = {"rend": [(10, 1), (4, 8)], "ward": [(7, 1), (7, 8)], "hunger": [(7, 15), (5, 6), (9, 6)]}
-# Which blank stone (cell of the 4x4 stones grid) each type is carved into.
-STONES = {"rend": (1, 0), "ward": (3, 0), "hunger": (0, 2)}
+# subtype: (family, mark strokes, key pixels lit in the tier's core colour)
+SUBTYPES = {
+    "rend": ("grudge", [((7, 1), (13, 11))], [(3, 1), (7, 1)]),
+    "break": ("grudge", [((3, 10), (7, 7)), ((8, 11), (12, 8))], [(7, 7), (8, 11)]),
+    "sting": ("grudge", [((3, 1), (2, 6)), ((11, 15), (12, 10))], [(2, 6), (12, 10)]),
+    "ward": ("mortmain", [((4, 15), (11, 15)), ((11, 15), (11, 11))], [(4, 1), (11, 11)]),
+    "still": ("mortmain", [((7, 8), (12, 8))], [(7, 8), (4, 1)]),
+    "sink": ("mortmain", [((11, 5), (8, 14))], [(8, 14), (4, 1)]),
+    "hunger": ("hush", [((6, 14), (6, 10)), ((9, 14), (9, 11))], [(6, 10), (9, 11)]),
+    "flee": ("hush", [((11, 8), (14, 4))], [(14, 4), (3, 1)]),
+}
+ORDER = list(SUBTYPES)
+PAIRS = [(a, b) for i, a in enumerate(ORDER) for b in ORDER[i + 1:]]
+# Which blank stone (cell of the 4x4 stones grid) each family is carved into.
+STONES = {"grudge": (1, 0), "mortmain": (3, 0), "hush": (0, 2)}
 FUSED_STONE = (2, 0)  # the broad rounded tablet, wide enough for two glyphs
+
+
+def glyph(*kinds):
+    """Strokes and key pixels for one symbol: a family spine with every given subtype's marks."""
+    strokes = SPINES[SUBTYPES[kinds[0]][0]] + [m for k in kinds for m in SUBTYPES[k][1]]
+    return strokes, [p for k in kinds for p in SUBTYPES[k][2]][:3]
 
 
 def cell(path, col, row, size, grid=None):
@@ -60,30 +79,31 @@ FUSED_SHIFT = 5
 CRACK = [((7, 0), (6, 5)), ((6, 5), (8, 10)), ((8, 10), (7, 16))]
 
 
-def carve(stone, kinds, tier):
+def carve(stone, symbols, tier, crack=False):
+    """symbols: one (strokes, keys) per glyph; two are narrowed side by side (a cross-family fuse)."""
     img = stone.copy()
     px = img.load()
     bb = img.getbbox()
     ox, oy = (bb[0] + bb[2]) // 2 - 7, (bb[1] + bb[3]) // 2 - 8
-    rng = random.Random("".join(kinds))
+    rng = random.Random(repr(symbols))
     cursed = TIERS[tier] == "crimson"
-    fused = len(kinds) > 1
-    place = lambda x, i: round(7 + (x - 7) * FUSED_SCALE + (i * 2 - 1) * FUSED_SHIFT) if fused else x
-    glyph, keys = set(), []
-    for i, kind in enumerate(kinds):
-        for a, b in GLYPHS[kind]:
+    pair = len(symbols) > 1
+    place = lambda x, i: round(7 + (x - 7) * FUSED_SCALE + (i * 2 - 1) * FUSED_SHIFT) if pair else x
+    cut, keys = set(), []
+    for i, (strokes, key_pixels) in enumerate(symbols):
+        for a, b in strokes:
             for x, y in line((place(a[0], i), a[1]), (place(b[0], i), b[1])):
                 jitter = rng.choice((0, 0, 1)) if cursed else 0  # cursed strokes run slightly uneven
-                glyph.add((ox + x + jitter, oy + y))
-        keys += [(ox + place(x, i), oy + y) for x, y in KEY_PIXELS[kind][:2 if fused else 3]]
-    crack = {(ox + x, oy + y) for a, b in CRACK for x, y in line(a, b)} if fused else set()
+                cut.add((ox + x + jitter, oy + y))
+        keys += [(ox + place(x, i), oy + y) for x, y in key_pixels[:2 if pair else 3]]
+    light = {(ox + x, oy + y) for a, b in CRACK for x, y in line(a, b)} if crack else set()
     ramp = lambda part: C[f"rune-{TIERS[tier]}-{part}"]
-    for x, y in glyph | crack:  # carved depth: shadow below-right of each cut
-        if (x + 1, y + 1) not in glyph | crack and px[x + 1, y + 1][3]:
+    for x, y in cut | light:  # carved depth: shadow below-right of each cut
+        if (x + 1, y + 1) not in cut | light and px[x + 1, y + 1][3]:
             px[x + 1, y + 1] = C["void-1"]
-    for x, y in glyph:
+    for x, y in cut:
         px[x, y] = ramp("mid")
-    for x, y in crack:
+    for x, y in light:
         if px[x, y][3]:
             px[x, y] = ramp("core")
     for x, y in keys:
@@ -103,6 +123,14 @@ def carve(stone, kinds, tier):
             if (x * 3 + y * 5) % 7 > 2:
                 px[x, y] = ramp("dark")
     return img
+
+
+def fused_icon(a, b, tier):
+    """Same family: one spine carrying both marks on the family's stone. Across families: both
+    glyphs narrowed on the broad tablet, joined by a crack of light."""
+    if SUBTYPES[a][0] == SUBTYPES[b][0]:
+        return carve(stones[SUBTYPES[a][0]], [glyph(a, b)], tier)
+    return carve(fused_stone, [glyph(a), glyph(b)], tier, crack=True)
 
 
 def recolour_by_luma(img, ramp):
@@ -152,10 +180,11 @@ for metal in ("bronze", "silver", "gold"):
     items += metals[metal]
 save(sheet([items], S, S), Path("art/items/item_icons_hd.png"))
 
-stones = {k: fit(cell(D / "icons_stones.png", c, r, 32)) for k, (c, r) in STONES.items()}
+stones = {f: fit(cell(D / "icons_stones.png", c, r, 32)) for f, (c, r) in STONES.items()}
 fused_stone = fit(cell(D / "icons_stones.png", *FUSED_STONE, 32))
-# Rows: the three types, then the fused pairs in src/items.js FUSIONS order.
-runes = [[carve(stones[k], [k], t) for t in range(6)] for k in ("rend", "ward", "hunger")]
-runes += [[carve(fused_stone, pair, t) for t in range(6)] for pair in (("rend", "ward"), ("rend", "hunger"), ("ward", "hunger"))]
+# Rows: the single subtypes in ORDER, then every pair in PAIRS order. Crimson can't be fused, so the
+# fused rows leave that column empty.
+runes = [[carve(stones[SUBTYPES[k][0]], [glyph(k)], t) for t in range(6)] for k in ORDER]
+runes += [[fused_icon(a, b, t) for t in range(5)] + [Image.new("RGBA", (S, S))] for a, b in PAIRS]
 save(sheet(runes, S, S), Path("art/runes/rune_icons_hd.png"))
-print("item_icons_hd", len(items), "rune_icons_hd 6x6")
+print("item_icons_hd", len(items), f"rune_icons_hd 6x{len(runes)}")
