@@ -71,11 +71,12 @@ def seamless(patch, ox=32, oy=32):
     return [[at(x + T * (x < left[y]), y + T * (y < top[x])) for x in range(T)] for y in range(T)]
 
 
-def variant(base, patch, seed):
-    """Base tile with a ragged interior blob taken from elsewhere in the patch; borders stay identical."""
+def variant(base, patch, seed, radius=(16, 22), offset=True):
+    """Base tile with a ragged interior blob taken from the patch; borders stay identical.
+    offset=False takes the blob from the same coordinates (keeps a shared layout, e.g. flagstones)."""
     rng = random.Random(seed)
-    sx, sy = rng.randrange(0, 128 - T), rng.randrange(0, 128 - T)
-    cx, cy, r = rng.uniform(26, 38), rng.uniform(26, 38), rng.uniform(16, 22)
+    sx, sy = (rng.randrange(0, 128 - T), rng.randrange(0, 128 - T)) if offset else (0, 0)
+    cx, cy, r = rng.uniform(30, 34), rng.uniform(30, 34), rng.uniform(*radius)
     out = [row[:] for row in base]
     for y in range(T):
         for x in range(T):
@@ -89,8 +90,31 @@ def edge_noise(x, y):
     return sum(math.sin(2 * math.pi * (kx * x + ky * y) / T + ph) for kx, ky, ph in WAVES) / len(WAVES)
 
 
-def overlay(tile, mask, bank, raggedness):
-    """Corner-mask overlay of tile: corners with their bit set are covered. bank: 1 raised, -1 sunken, 0 flat."""
+def drop_specks(inside, smallest):
+    """Flip enclosed islands and holes under `smallest` px that don't touch the tile edge."""
+    seen = [[False] * T for _ in range(T)]
+    for y0 in range(T):
+        for x0 in range(T):
+            if seen[y0][x0]:
+                continue
+            value, region, stack, edge = inside[y0][x0], [], [(x0, y0)], False
+            seen[y0][x0] = True
+            while stack:
+                x, y = stack.pop()
+                region.append((x, y))
+                edge |= x in (0, T - 1) or y in (0, T - 1)
+                for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                    if 0 <= nx < T and 0 <= ny < T and not seen[ny][nx] and inside[ny][nx] == value:
+                        seen[ny][nx] = True
+                        stack.append((nx, ny))
+            if not edge and len(region) < smallest:
+                for x, y in region:
+                    inside[y][x] = not value
+
+
+def overlay(tile, mask, bank, raggedness, options=None):
+    """Corner-mask overlay of tile: corners with their bit set are covered. bank: 1 raised, -1 sunken, 0 flat.
+    options: colours the edge shading may step to (default: the whole palette)."""
     tl, tr, bl, br = ((mask >> i) & 1 for i in range(4))
     inside = [[False] * T for _ in range(T)]
     for y in range(T):
@@ -98,21 +122,27 @@ def overlay(tile, mask, bank, raggedness):
             u, v = (x + 0.5) / T, (y + 0.5) / T
             b = tl * (1 - u) * (1 - v) + tr * u * (1 - v) + bl * (1 - u) * v + br * u * v
             inside[y][x] = b > 0.5 + raggedness * edge_noise(x, y)
+    if options:
+        drop_specks(inside, 48)
+    dark = lambda c, steps=1: shifted(c, -1, steps, options)
+    light = lambda c: shifted(c, 1, 1, options)
     filled = lambda x, y: inside[y][x] if 0 <= x < T and 0 <= y < T else inside[min(T - 1, max(0, y))][min(T - 1, max(0, x))]
     out = [[(0, 0, 0, 0)] * T for _ in range(T)]
     for y in range(T):
         for x in range(T):
-            if inside[y][x]:
-                out[y][x] = tile[y][x]
-                if not filled(x, y - 1) or not filled(x - 1, y):
-                    out[y][x] = darker(tile[y][x], 1) if bank < 0 else lighter(tile[y][x])
-                if bank < 0 and not filled(x, y - 2):
-                    out[y][x] = darker(tile[y][x], 2)
-                if not filled(x, y + 1) or not filled(x + 1, y):
-                    out[y][x] = darker(tile[y][x], 1) if bank >= 0 else lighter(tile[y][x])
-            elif bank > 0 and any(filled(x, y - d) for d in (1, 2, 3)):
-                depth = next(d for d in (1, 2, 3) if filled(x, y - d))
-                out[y][x] = darker(tile[y - depth][x], 4 - depth)  # the bank's face below its edge
+            if not inside[y][x]:
+                continue
+            c = out[y][x] = tile[y][x]
+            if not filled(x, y - 1) or not filled(x - 1, y):
+                out[y][x] = dark(c, 1) if bank < 0 else light(c)
+            if bank < 0 and not filled(x, y - 2):
+                out[y][x] = dark(c, 2)
+            # A raised bank's face sits on the bottom rows of the patch itself, so it never crosses a tile seam.
+            face = next((d for d in (1, 2, 3) if not filled(x, y + d)), 0) if bank > 0 else 0
+            if face:
+                out[y][x] = dark(c, 4 - face)
+            elif not filled(x, y + 1) or not filled(x + 1, y):
+                out[y][x] = dark(c, 1) if bank >= 0 else light(c)
     return out
 
 
@@ -120,10 +150,10 @@ PALETTE = [c + (255,) for n, c in COLORS.items() if not n.startswith("rune")]
 luma = lambda c: 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
 
 
-def shifted(c, sign, steps=1):
-    """Nearest palette colour that is darker (sign -1) or lighter (+1), stepping through the palette."""
+def shifted(c, sign, steps=1, palette=None):
+    """Nearest colour that is darker (sign -1) or lighter (+1), stepping through `palette` (default all)."""
     for _ in range(steps):
-        options = [p for p in PALETTE if (luma(p) - luma(c)) * sign > 4]
+        options = [p for p in palette or PALETTE if (luma(p) - luma(c)) * sign > 4]
         if not options:
             return c
         c = min(options, key=lambda p: diff(p, c) + 2 * abs(luma(p) - luma(c)))

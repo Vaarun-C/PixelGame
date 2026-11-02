@@ -438,8 +438,9 @@ SHEETS = {
     "stumps": [load("stump_rotted"), strip(quadrant("stump_spear_grid", 1), ("ash-3",), 40)],
     "remains": [recolour(strip_patch(quadrant("bodies_B_old", q)), BONE_DIM) for q in range(4)]
     + [recolour(strip(quadrant("bones_grid", q), ("steel-1",)), YELLOW_BONE) for q in (2, 3)],
-    "rocks": [drop_islands(strip(quadrant("stones_stakes_grid", 1), ("steel-0",), 44), 20),
-              drop_islands(strip(load("rocks_jagged"), ("flesh-", "bronze-", "gilt-", "leather-3"), 40), 20)],
+    # Dimmed like the rubble: bright stone outshone the ground and read as pasted on top of it.
+    "rocks": [recolour(drop_islands(strip(quadrant("stones_stakes_grid", 1), ("steel-0",), 44), 20), STONE_DIM),
+              recolour(drop_islands(strip(load("rocks_jagged"), ("flesh-", "bronze-", "gilt-", "leather-3"), 40), 20), STONE_DIM)],
     "stakes": [load(f"stake_helm_rot/{k}") for k in (1, 7)],  # the approved helm stake, turned to 3/4 views
     "crates": [recolour(quadrant("crates_grid", q), STRAW) for q in range(4)],
     "carts": [drop_islands(recolour(strip(load("cart_broken"), SAND, 100), {**GRAIN, **STRAW}), 20),
