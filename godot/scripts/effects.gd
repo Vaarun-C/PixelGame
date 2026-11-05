@@ -1,16 +1,21 @@
 extends Node2D
 
-# Game feel from src/effects.js: hit-stop, screen shake and particles, plus ground puffs (dust
-# kicked up by feet) drawn on the ground under the characters.
+# Game feel from src/effects.js: hit-stop, screen shake, particles and damage numbers, plus ground
+# puffs (dust kicked up by feet) drawn on the ground under the characters.
 const SHAKE_DECAY := 18.0
 const PARTICLE_DRAG := 5.0
 const PUFF_ALPHA := 0.6
+# Damage at or above this is a big hit: a longer freeze, a harder shake, a bigger number.
+const BIG_HIT := 25.0
+# A number pops out at `pop` scale, settles to `scale`, leaps, falls and fades. Speeds in px/s.
+const NUMBER := {"life": 0.75, "fade": 0.25, "pop": 0.07, "leap": 300.0, "drift": 60.0, "gravity": 1100.0}
 
 var freeze_until := 0
 var shake_amount := 0.0
 var last_tick := Time.get_ticks_msec()
 var particles: Array[Dictionary] = []
 var puffs: Array[Dictionary] = []
+var numbers: Array[Dictionary] = []
 var ground := Node2D.new()
 
 
@@ -50,6 +55,13 @@ func burst(at: Vector2, angle: float, count: int, speed: float, spread: float, n
 		})
 
 
+func number(at: Vector2, damage: float, big: bool) -> void:
+	numbers.append({
+		"pos": at, "age": 0.0, "text": str(maxi(1, roundi(damage))), "big": big,
+		"vel": Vector2((randf() * 2 - 1) * NUMBER.drift, -NUMBER.leap * (1.25 if big else 1.0)),
+	})
+
+
 func _process(dt: float) -> void:
 	var now := Time.get_ticks_msec()
 	var real_dt := minf((now - last_tick) / 1000.0, 0.1)
@@ -72,6 +84,11 @@ func _process(dt: float) -> void:
 		p.vel -= p.vel * PARTICLE_DRAG * dt
 		p.age += dt
 	puffs = puffs.filter(func(p): return p.age < p.life)
+	for n in numbers:
+		n.pos += n.vel * dt
+		n.vel.y += NUMBER.gravity * dt
+		n.age += dt
+	numbers = numbers.filter(func(n): return n.age < NUMBER.life)
 	ground.queue_redraw()
 	queue_redraw()
 
@@ -84,6 +101,11 @@ func shake_offset() -> float:
 func _draw() -> void:
 	for p in particles:
 		draw_rect(Rect2((p.pos / 2).round() * 2, Vector2.ONE * 2 * p.size), p.color)
+	for n in numbers:
+		var scale := (4 if n.big else 3) if n.age < NUMBER.pop else (3 if n.big else 2)
+		var alpha := minf(1.0, (NUMBER.life - n.age) / NUMBER.fade)
+		var at: Vector2 = (n.pos / 2).round() * 2 - Vector2(PixelFont.width(n.text, PixelFont.LARGE, scale) / 2, 0)
+		PixelFont.draw(self, n.text, at.round(), "blood-4" if n.big else "bone-0", "void-0", PixelFont.LARGE, scale, alpha)
 
 
 # Each puff is a disc of whole world pixels, so it sits on the same grid as the art.

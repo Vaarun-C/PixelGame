@@ -56,5 +56,33 @@ def drop_specks(img, max_size=2):
     return img
 
 
+COLORS = {name: rgb for rgb, name in load_palette().items()}
+
+
+def step_down(name):
+    family, _, level = name.rpartition("-")
+    if level.isdigit() and int(level) > 0 and f"{family}-{int(level) - 1}" in COLORS:
+        return f"{family}-{int(level) - 1}"
+    return {"bone-0": "ash-4"}.get(name, name)
+
+
+def despeckle(img):
+    """AI speckle: a pixel unlike all 8 neighbours takes its side neighbours' most common colour."""
+    px = img.load()
+    w, h = img.size
+    fixes = []
+    for y in range(1, h - 1):
+        for x in range(1, w - 1):
+            if not px[x, y][3]:
+                continue
+            around = [px[x + dx, y + dy] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+            corners = [px[x + dx, y + dy] for dx, dy in ((1, 1), (-1, -1), (1, -1), (-1, 1))]
+            if px[x, y] not in around + corners and all(a[3] for a in around):
+                fixes.append(((x, y), max(set(around), key=around.count)))
+    for xy, colour in fixes:
+        px[xy] = colour
+    return img
+
+
 if __name__ == "__main__":
     snap(Image.open(sys.argv[1])).save(sys.argv[2])

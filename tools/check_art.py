@@ -7,7 +7,7 @@ PALETTE_FILE = Path(__file__).resolve().parent.parent / "art/palette/master.gpl"
 
 # Folder -> allowed frame sizes; sheet dimensions must be multiples of one of them.
 FRAME_SIZES = {
-    "characters": [(32, 48), (96, 96), (128, 144)],
+    "characters": [(32, 48), (96, 96), (128, 144), (160, 160)],
     "enemies": [(32, 48), (64, 64), (64, 96), (128, 112)],
     "bosses": [(96, 96), (128, 128)],
     "runes": [(16, 16), (32, 32)],

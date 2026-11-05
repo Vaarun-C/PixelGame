@@ -10,8 +10,6 @@ const ANIMS := {"idle": {"frames": 4, "ms": 180}, "walk": {"frames": 6, "ms": 10
 const MIN_FRAME_TIME := 0.04
 const SHADOW_ROWS := [8, 14, 16, 14, 8]
 const SHADOW_WIDTH := 16
-# Sheets keep 2px of floor under the feet.
-const FEET_PAD := 2
 # A walk is a series of steps, not a glide. Each facing's walk has two contact frames, read from
 # the art (see contacts()). Speed drops by LURCH as a foot plants and surges between steps, the
 # body sinks STEP_DIP world px on the contact and the ground kicks up a little of whatever it is
@@ -20,6 +18,9 @@ const LURCH := 0.35
 # Rows at the bottom of a frame where its feet are measured.
 const FEET_ROWS := 6
 const STEP_DIP := 1
+# The floor under the feet on sheets that aren't measured (attacks, poses: blades and bodies can
+# reach the bottom edge), as ART_RULES §2 specifies.
+const FEET_PAD := 2
 # Two puffs roll out sideways from the planted foot, low along the ground; running kicks bigger ones.
 const DUST_SPEED := 40.0
 const DUST_LIFE := 0.45
@@ -30,6 +31,8 @@ const RUN_DUST := 1.5
 
 # name -> {texture, size}, filled by each actor before _ready.
 var sheets := {}
+# Idle and walk frame counts and timing; an actor whose sheets differ sets its own before _ready.
+var anims := ANIMS
 var facing := "down"
 var anim := "idle"
 var anim_time := 0.0
@@ -38,6 +41,7 @@ var tint_material := ShaderMaterial.new()
 var last_walk_frame := -1
 
 static var contact_cache := {}
+static var floor_cache := {}
 
 @onready var sprite: Sprite2D = $Sprite
 
@@ -50,8 +54,9 @@ func _ready() -> void:
 
 
 # rows: 1 for a sheet drawn for one facing only (a cutscene pose); it shows whatever the facing.
-static func sheet_entry(path: String, size: Vector2i, rows := DIRS.size()) -> Dictionary:
-	return {"texture": load(path), "size": size, "rows": rows}
+# floor: rows of the canvas under the feet, for a sheet whose canvas leaves more than FEET_PAD.
+static func sheet_entry(path: String, size: Vector2i, rows := DIRS.size(), floor := FEET_PAD) -> Dictionary:
+	return {"texture": load(path), "size": size, "rows": rows, "floor": floor}
 
 
 # ground: {speed, slide} overrides the ground under the feet (Terrain.ground_at). An override is
@@ -83,14 +88,15 @@ func update_movement(dir: Vector2, run: bool, dt: float, ground = null) -> void:
 # and the feet are spread widest, a pair roughly half a cycle apart.
 func contacts() -> Array:
 	var texture: Texture2D = sheets.walk.texture
-	var key := "%s:%s" % [texture.resource_path, facing]
+	var row := DIRS.find(facing) if sheets.walk.rows > 1 else 0
+	var key := "%s:%d" % [texture.resource_path, row]
 	if not contact_cache.has(key):
 		var size: Vector2i = sheets.walk.size
-		var frames: int = ANIMS.walk.frames
+		var frames: int = anims.walk.frames
 		var image := texture.get_image()
 		var scores := []
 		for f in frames:
-			var frame := image.get_region(Rect2i(f * size.x, DIRS.find(facing) * size.y, size.x, size.y))
+			var frame := image.get_region(Rect2i(f * size.x, row * size.y, size.x, size.y))
 			var used := frame.get_used_rect()
 			var feet := frame.get_region(Rect2i(0, used.end.y - FEET_ROWS, size.x, FEET_ROWS)).get_used_rect()
 			scores.append(used.position.y + feet.size.x / 10.0)
@@ -103,8 +109,8 @@ func contacts() -> Array:
 
 # Walk frames from the current moment to the nearest contact, either way round.
 func step_distance() -> float:
-	var frames: int = ANIMS.walk.frames
-	var now := fposmod(anim_time * 1000 / ANIMS.walk.ms, frames)
+	var frames: int = anims.walk.frames
+	var now := fposmod(anim_time * 1000 / anims.walk.ms, frames)
 	return contacts().map(func(c): return minf(absf(now - c), frames - absf(now - c))).min()
 
 
@@ -150,7 +156,7 @@ static func attack_frame(phase: String, t: float, times: Dictionary, frames: int
 
 
 func walk_frame() -> int:
-	return floori(anim_time * 1000 / ANIMS[anim].ms) % ANIMS[anim].frames
+	return floori(anim_time * 1000 / anims[anim].ms) % anims[anim].frames
 
 
 # lean: sprite offset toward a blow, in world pixels.
@@ -161,11 +167,30 @@ func show_frame(next: String, frame: int, lean := Vector2.ZERO) -> void:
 		sprite.texture = s.texture
 		sprite.hframes = s.texture.get_width() / s.size.x
 		sprite.vframes = s.rows
-		sprite.offset = Vector2(-s.size.x / 2, FEET_PAD - s.size.y)
 		queue_redraw()
-	sprite.frame_coords = Vector2i(frame, DIRS.find(facing) if sprite.vframes > 1 else 0)
+	var row := DIRS.find(facing) if sprite.vframes > 1 else 0
+	sprite.offset = Vector2(-sheets[next].size.x / 2, floor_gap(next, row) - sheets[next].size.y)
+	sprite.frame_coords = Vector2i(frame, row)
 	var dip := STEP_DIP if next == "walk" and frame in contacts() else 0
 	sprite.position = (lean.round() + Vector2(0, dip)) * 2
+
+
+# Empty rows under the lowest foot in a sheet's row, so the feet stand on the actor's position
+# whatever floor the art left under them. Only idle and walk frames show the true foot line.
+func floor_gap(name: String, row: int) -> int:
+	if name not in anims:
+		return sheets[name].floor
+	var s: Dictionary = sheets[name]
+	var key := "%s:%d" % [s.texture.resource_path, row]
+	if not floor_cache.has(key):
+		var image: Image = s.texture.get_image()
+		var gaps := []
+		for f in s.texture.get_width() / s.size.x:
+			var used := image.get_region(Rect2i(f * s.size.x, row * s.size.y, s.size.x, s.size.y)).get_used_rect()
+			if used.has_area():
+				gaps.append(s.size.y - used.end.y)
+		floor_cache[key] = gaps.min() if gaps else 0
+	return floor_cache[key]
 
 
 func set_tint(color: String, amount: float) -> void:

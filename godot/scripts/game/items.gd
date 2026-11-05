@@ -1,10 +1,14 @@
 class_name Items
 
 # src/items.js: item definitions, rune keys, icons and loot tables.
-# Keys: "bronze", "shard", "scrap_helm", ... or "rune_<types>_<tier 1-6>[_<notches>]", where <types> is
-# one verb or a fused pair in RuneBook.ORDER ("rend-hunger").
+# Keys: "bronze", "shard", "scrap_helm", ... or "rune_<types>_<tier 1-6>[_<notches>[_<souls>]]", where
+# <types> is one verb or a fused pair in RuneBook.ORDER ("rend-hunger") and <souls> one soul id per verb
+# in the same order, marked "r" once read ("812r-3301"). Keys without souls (older saves) count as read.
 const TIERS := ["pale", "azure", "violet", "venom", "gold", "crimson"]
 const TIER_WEIGHTS := [700, 200, 70, 25, 4, 1]
+# An empty stone: a shattered rune the village monk patched with mortar (lore: Rebuilding). The
+# barterer sells them; lashed to the blade, it takes the soul of the next Hollow killed (Runes.bind).
+const EMPTY_STONE := "empty_stone"
 # Metals are counted in grams; barter is priced by weight.
 const LIST := {
 	"shard": {"name": "Rune Shard", "desc": "Feeds a rune's growth.", "stack": 99, "icon": 0},
@@ -14,6 +18,7 @@ const LIST := {
 	"bronze": {"name": "Bronze", "desc": "Common metal. Traded by weight.", "stack": 9999, "icon": 4, "unit": "g"},
 	"silver": {"name": "Silver", "desc": "Prized metal. Traded by weight.", "stack": 9999, "icon": 7, "unit": "g"},
 	"gold": {"name": "Gold", "desc": "Rare metal. A little goes far.", "stack": 9999, "icon": 10, "unit": "g"},
+	"empty_stone": {"name": "Empty Stone", "desc": "Patched with mortar. Holds nothing yet. Lash it to the blade and kill.", "stack": 10, "icon": 13},
 }
 # Clump icons grow with weight: small below 10g, medium below 40g, then large.
 const CLUMP_SIZES := [10, 40]
@@ -38,8 +43,16 @@ static var icons := {
 }
 
 
-static func rune_key(types: Array, tier: int, notches := 0) -> String:
-	return "rune_%s_%d%s" % ["-".join(types), tier, "_%d" % notches if notches else ""]
+static func rune_key(types: Array, tier: int, notches := 0, souls := []) -> String:
+	var key := "rune_%s_%d" % ["-".join(types), tier]
+	if souls:
+		return key + "_%d_%s" % [notches, "-".join(souls.map(func(s): return "%d%s" % [s.id, "r" if s.read else ""]))]
+	return key + ("_%d" % notches if notches else "")
+
+
+# Fresh, unread souls for a newly found or bound stone.
+static func new_souls(types: Array) -> Array:
+	return types.map(func(_t): return {"id": randi_range(1, 999999), "read": false})
 
 
 # Icon row (art/drafts/ui/icons.py): the single verbs in ORDER, then every pair in ORDER; -1 if unknown.
@@ -67,11 +80,16 @@ static func info(key: String) -> Dictionary:
 			return {}
 		var tier_name: String = TIERS[tier - 1]
 		var kind: Dictionary = RuneBook.KINDS.get(parts[1], {})
+		var ids := Array(parts[4].split("-")) if parts.size() > 4 else []
+		var souls := []
+		for i in types.size():
+			var id: String = ids[i] if i < ids.size() else "0r"
+			souls.append({"id": id.trim_suffix("r").to_int(), "read": id.ends_with("r"), "verb": types[i]})
 		return {
 			"name": "%s Rune of %s" % [tier_name.capitalize(), "the " + kind.name if kind else parts[1].capitalize()],
 			"desc": kind.desc if kind else RuneBook.SUBTYPES[parts[1]].desc,
 			"stack": 1, "unit": "", "color": "rune-%s-mid" % tier_name,
-			"tier": tier, "types": types, "notches": parts[3].to_int() if parts.size() > 3 else 0,
+			"tier": tier, "types": types, "notches": parts[3].to_int() if parts.size() > 3 else 0, "souls": souls,
 			"sheet": "runes", "col": tier - 1, "row": row,
 		}
 	if not LIST.has(key):
@@ -124,4 +142,4 @@ static func make_drop(drop: Array, mods: Dictionary) -> Dictionary:
 		"scrap":
 			return {"key": SCRAP.pick_random(), "count": 1}
 	var type: String = mods.runeType if mods.has("runeType") and randf() < 0.6 else RuneBook.ORDER.pick_random()
-	return {"key": "rune_%s_%d" % [type, weighted(TIER_WEIGHTS) + 1], "count": 1}
+	return {"key": rune_key([type], weighted(TIER_WEIGHTS) + 1, 0, new_souls([type])), "count": 1}

@@ -22,6 +22,7 @@ A rune gives its full power only once you "read" it, by doing what it names. Rea
 - **An echo changes only when someone finishes part of the soul's need.** In the kingdom era no one ever did, so no one saw a stone answer. That is what breaks the doctrine for the Wanderer.
 - **Echoes go silent while Hush's favour quiets a stone** (round 37) and **stop at the Pull** (round 20). **The Whisper can mishear a wish, never a name** (round 20).
 - **UI:** a stone's line is labelled "Echo:" (the order's word); once the man's name is known, it becomes his name. (design canon)
+- **The echo pool** (round 44, being built): common forced echoes live in `godot/scripts/game/echoes.json`, 8 lines per root name, picked by the stone's soul id so each stone's line stays fixed. Each line carries the dying act of its family (refusing, clinging, slipping away). This is game data: the lines are claims of the dead, not canon facts. Authored notable stones (the Pale Rend, Crimson, bosses) get their own lines, not pool lines. (seen in: echoes.json)
 
 ### Stone-sickness (round 25)
 
@@ -38,6 +39,7 @@ A rune gives its full power only once you "read" it, by doing what it names. Rea
 - **Alternatives weighed:** "the stone mirrors the reader's guilt" (breaks on two readers hearing the same words; folk belief at most); "everyone knew and didn't care" (contradicts trust in the rite); "the dead fight beside you" (heroic drift).
 - **IP flag:** "echo" brushes Bloodborne's Blood Echoes (a currency); low risk since ours is never money. Soldier slang "the mutter" is an alternative.
 - **The Pale Rend's echo as a later beat** (round 38 proposal): "He said my name. Then nothing." is heard the first time he reads a stone below the Pull.
+- **Pool repeats** (round 44 flag): with 8 lines per verb, many stones share an echo, which weakens "finding a widow proved the man had lived". Proposed fixes: (a) men die alike in a war, so a shared line is in-world ("Half the field says that."); (b) build an echo from two short fragments (act + detail) to multiply the pool; (c) only clue-bearing stones carry kin or places, pool lines stay generic.
 - **Withheld:** whether the Order's founders believed the doctrine.
 
 ## Rejected

@@ -1,13 +1,16 @@
 extends Actor
 
-# Villagers wander around their home; the barterer keeps to the stall (src/village.js).
-const WANDER_RADIUS := 384.0
+# Villagers wander around their home; the barterer keeps to the stall and the smith to his spot
+# (src/village.js).
+const WANDER_RADIUS := 192.0
 const TARGET_SECONDS := 6.0
 const SPEECH_SECONDS := 3.5
 const SECONDS_PER_WORD := 0.4
 const HISTORY := 2
+# Roles without art of their own yet wear another's sprite.
+const SPRITES := {"smith": "guard"}
 
-@export_enum("peasant", "monk", "guard", "barterer") var role := "peasant"
+@export_enum("peasant", "monk", "guard", "barterer", "smith") var role := "peasant"
 @export var wait := 1.0
 
 var home := Vector2.ZERO
@@ -26,7 +29,8 @@ var held := false
 
 
 func _ready() -> void:
-	var dir := "res://art/characters/%s/%s_hd_" % [role, role]
+	var look: String = SPRITES.get(role, role)
+	var dir := "res://art/characters/%s/%s_hd_" % [look, look]
 	sheets = {
 		"idle": sheet_entry(dir + "idle.png", Vector2i(64, 96)),
 		"walk": sheet_entry(dir + "walk.png", Vector2i(64, 96)),
@@ -44,7 +48,7 @@ func _physics_process(dt: float) -> void:
 
 
 func wander(dt: float) -> Vector2:
-	if role == "barterer":
+	if role in ["barterer", "smith"]:
 		return Vector2.ZERO
 	if held or speech or waiting or wait > 0:
 		wait -= dt
@@ -59,7 +63,7 @@ func wander(dt: float) -> Vector2:
 		target = null
 		wait = 1 + randf() * 4
 		return Vector2.ZERO
-	return Vector2(signf(to.x) if absf(to.x) > 4 else 0.0, signf(to.y) if absf(to.y) > 4 else 0.0)
+	return to.normalized()
 
 
 # The next of this role's scripted lines (src/village.js talk); they stop to say it.

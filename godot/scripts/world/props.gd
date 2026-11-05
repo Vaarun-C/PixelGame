@@ -3,7 +3,7 @@ class_name Props
 # src/props.js, in the JS world's pixels (half a sprite pixel). Variant counts and sheet order must
 # match the sheets in art/props.
 # The anchor is the prop's ground contact point. solid: collision box [dx, dy, w, h] from the anchor,
-# or one box per variant. area: interaction box for non-solid lootables. flat: drawn under characters.
+# or one box per variant. area: interaction box for non-solid lootables and rite places. flat: drawn under characters.
 # large: 64px, only placed on even tiles so they don't overlap. spentOffset: sheet column offset once looted.
 # scale: 0.5 draws a 2x-resolution sheet at native pixels; feet: anchor row in the sheet (default size - 4).
 const LIST := {
@@ -23,6 +23,8 @@ const LIST := {
 	"banner": {"sheet": "banners_hd", "size": 128, "scale": 0.5, "variants": 2, "large": true},
 	"remains": {"sheet": "remains_hd", "size": 64, "scale": 0.5, "variants": 6, "flat": true},
 	# The prologue's dead man, gripping the first stone the Wanderer reads (placed by prologue.gd only).
+	"misborn_body": {"sheet": "misborn_body", "size": 160, "scale": 0.5, "feet": 157, "variants": 1, "flat": true, "loot": "body", "area": [-28, -16, 56, 18], "glint": 10},
+	"stammerer_body": {"sheet": "stammerer_body", "size": 96, "scale": 0.5, "feet": 94, "variants": 1, "flat": true, "loot": "body", "area": [-18, -14, 36, 14], "glint": 10},
 	"dead_man": {"sheet": "dead_man_hd", "size": 96, "scale": 0.5, "feet": 94, "variants": 1, "flat": true, "loot": "body", "area": [-18, -16, 36, 16], "glint": 10},
 	# Rot swamp
 	"swamp_tree": {"sheet": "swamp_trees_hd", "size": 128, "scale": 0.5, "variants": 4, "solid": [[-6, -4, 12, 5], [-6, -4, 12, 5], [-4, -4, 12, 5], [-6, -4, 12, 5]], "large": true},
@@ -45,6 +47,10 @@ const LIST := {
 	"ice_tomb": {"sheet": "ice_tombs_hd", "size": 64, "scale": 0.5, "variants": 2, "solid": [-6, -4, 12, 5], "loot": "tomb", "spentOffset": 2, "glint": 18},
 	"ice_spike": {"sheet": "ice_spikes_hd", "size": 64, "scale": 0.5, "variants": 2, "solid": [-5, -3, 10, 4]},
 	# Village (placed by the village layout, not by spawn odds)
+	"cottage": {"sheet": "cottage_hd", "size": 256, "scale": 0.5, "variants": 6, "solid": [[-45, -31, 90, 32], [-44, -31, 88, 32], [-49, -34, 98, 35], [-43, -30, 86, 31], [-46, -32, 91, 33], [-42, -29, 83, 30]]},
+	"barn": {"sheet": "barn_hd", "size": 256, "scale": 0.5, "variants": 3, "solid": [[-48, -34, 96, 35], [-50, -35, 99, 36], [-47, -33, 94, 34]]},
+	"longhouse": {"sheet": "longhouse_hd", "size": 384, "scale": 0.5, "variants": 3, "solid": [[-64, -45, 128, 46], [-59, -41, 117, 42], [-47, -33, 94, 34]]},
+	"shed": {"sheet": "shed_hd", "size": 256, "scale": 0.5, "variants": 3, "solid": [[-48, -33, 95, 34], [-39, -27, 78, 28], [-41, -28, 81, 29]]},
 	"hut": {"sheet": "huts_hd", "size": 128, "scale": 0.5, "variants": 5, "solid": [[-20, -12, 40, 13], [-20, -12, 40, 13], [-20, -12, 40, 13], [-18, -12, 36, 13], [-22, -8, 44, 9]]},
 	"palisade": {
 		"sheet": "palisade_hd", "size": 128, "scale": 0.5, "variants": 7,
@@ -52,7 +58,10 @@ const LIST := {
 	},
 	"village_crate": {"sheet": "crates_hd", "size": 64, "scale": 0.5, "variants": 4, "solid": [-7, -5, 14, 6]},
 	"well": {"sheet": "wells_hd", "size": 64, "scale": 0.5, "variants": 3, "solid": [-9, -5, 18, 7]},
-	"firepit": {"sheet": "firepit_hd", "size": 64, "scale": 0.5, "variants": 1, "flat": true},
+	# The rite places (rite: Rites.PLACES has its rites); the shrine's second variant has its niche grated shut.
+	"firepit": {"sheet": "firepit_hd", "size": 64, "scale": 0.5, "variants": 1, "flat": true, "rite": true, "area": [-12, -10, 24, 12]},
+	"ledger": {"sheet": "ledger_hd", "size": 64, "scale": 0.5, "variants": 1, "solid": [-7, -6, 14, 7], "rite": true},
+	"wayside_shrine": {"sheet": "wayside_shrine_hd", "size": 128, "scale": 0.5, "variants": 2, "solid": [-12, -8, 23, 9], "rite": true},
 	"stall": {"sheet": "stall_hd", "size": 128, "scale": 0.5, "variants": 1, "solid": [-19, -8, 38, 9]},
 }
 

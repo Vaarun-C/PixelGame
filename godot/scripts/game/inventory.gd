@@ -9,6 +9,12 @@ const SAVE_PATH := "user://inventory.json"
 
 var slots := []
 var sockets := Runes.empty_sockets()
+# Uses toward reading each soul not yet read, by soul id (Runes.practise).
+var reading := {}
+# How many of each soul's needs the rites have finished, by soul id (Rites.next_need).
+var rites := {}
+# Levels the smith has hammered into his gear (Smith).
+var forged := {"strength": 0, "armor": 0}
 var selected := -1
 var fusing := false
 var open := false
@@ -23,7 +29,7 @@ func _init() -> void:
 	if "--rune-bag" in OS.get_cmdline_user_args() and not rune_bag_given:
 		rune_bag_given = true
 		for verb in RuneBook.ORDER:
-			add(Items.rune_key([verb], 2), 1)
+			add(Items.rune_key([verb], 2, 0, Items.new_souls([verb])), 1)
 		add("shard", 200)
 
 
@@ -41,17 +47,26 @@ func load_saved() -> void:
 		var held: Array = saved.get("sockets", {}).get(part, [])
 		for i in mini(held.size(), sockets[part].size()):
 			var key = held[i]
-			sockets[part][i] = key if key is String and Items.info(key).has("types") and Runes.fits(key, part) else null
+			sockets[part][i] = key if key is String and lashable(key) and Runes.fits(key, part) else null
+	var ledger = saved.get("reading", {})
+	reading = ledger if ledger is Dictionary else {}
+	var finished = saved.get("rites", {})
+	rites = finished if finished is Dictionary else {}
+	var gear = saved.get("forged", {})
+	for stat in forged:
+		forged[stat] = clampi(int(gear.get(stat, 0)), 0, Smith.MAX[stat]) if gear is Dictionary else 0
 
 
 func save() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"slots": slots, "sockets": sockets}))
+	file.store_string(JSON.stringify({"slots": slots, "sockets": sockets, "reading": reading, "rites": rites, "forged": forged}))
 
 
 # Returns how many didn't fit.
 func add(key: String, count: int) -> int:
 	var stack: int = Items.info(key).stack
+	if Items.info(key).get("tier", 0) == RuneBook.CRIMSON:
+		Journal.write("crimson_first")
 	for slot in slots:
 		if slot and slot.key == key:
 			var n := mini(count, stack - slot.count)
@@ -88,8 +103,23 @@ func remove(key: String, count: int) -> int:
 	return removed
 
 
+# One more use toward reading soul `id`; returns the count so far.
+func practise(id: int) -> int:
+	reading[str(id)] = reading.get(str(id), 0) + 1
+	return reading[str(id)]
+
+
 static func is_rune(slot) -> bool:
 	return slot != null and Items.info(slot.key).has("types")
+
+
+static func lashable(key: String) -> bool:
+	return key == Items.EMPTY_STONE or Items.info(key).has("types")
+
+
+# The selected bag item if it can be lashed (a rune or an empty stone), else "".
+func selected_lashable() -> String:
+	return slots[selected].key if selected >= 0 and slots[selected] and lashable(slots[selected].key) else ""
 
 
 func selected_rune() -> String:
@@ -112,11 +142,17 @@ func click_bag(i: int) -> String:
 
 func click_socket(part: String, i: int) -> String:
 	var current = sockets[part][i]
-	var key := selected_rune()
+	var key := selected_lashable()
 	if key:
 		if not Runes.fits(key, part):
 			return "%s won't sit in the %s." % [Items.info(key).name, part]
-		slots[selected] = {"key": current, "count": 1} if current else null
+		var left: int = slots[selected].count - 1
+		var free := slots.find(null)
+		if left and current and free < 0:
+			return "Bag is full."
+		slots[selected] = {"key": key, "count": left} if left else {"key": current, "count": 1} if current else null
+		if left and current:
+			slots[free] = {"key": current, "count": 1}
 		sockets[part][i] = key
 		deselect()
 	elif current:
@@ -140,6 +176,7 @@ func carve() -> String:
 	remove("shard", cost)
 	slots[selected] = {"key": Runes.carved(key), "count": 1}
 	save()
+	Journal.write("carve_first")
 	return "Notch %d carved." % (notches + 1)
 
 
@@ -171,4 +208,5 @@ func fuse(i: int) -> String:
 	fusing = false
 	selected = slots.find_custom(func(s): return s and s.key == key)
 	save()
+	Journal.write("fuse_first")
 	return "Fused: %s." % Items.info(key).name

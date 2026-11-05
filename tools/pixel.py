@@ -1,4 +1,6 @@
 """Shared helpers for the placeholder art generators."""
+from pathlib import Path
+
 from PIL import Image
 from check_art import load_palette
 
@@ -129,3 +131,96 @@ def save(img, path, preview_dir=None):
     img.save(path)
     if preview_dir:
         img.resize((img.width * 6, img.height * 6), Image.NEAREST).save(f"{preview_dir}/{path.name}")
+
+
+def outline(img, color="void-1"):
+    """A 1 px exterior outline round every opaque pixel of an image."""
+    px = img.load()
+    out = img.copy()
+    o = out.load()
+    for y in range(img.height):
+        for x in range(img.width):
+            if px[x, y][3] == 0 and any(0 <= x + dx < img.width and 0 <= y + dy < img.height and px[x + dx, y + dy][3]
+                                        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                o[x, y] = COLORS[color] + (255,)
+    return out
+
+
+def recolor_edge(img, color="void-1"):
+    """Repaint the sprite's own outermost pixels as its outline (AI frames drift to other dark colours)."""
+    px = img.load()
+    out = img.copy()
+    o = out.load()
+    for y in range(img.height):
+        for x in range(img.width):
+            if px[x, y][3] and any(not (0 <= x + dx < img.width and 0 <= y + dy < img.height) or px[x + dx, y + dy][3] == 0
+                                   for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                o[x, y] = COLORS[color] + (255,)
+    return out
+
+
+def segment_frames(root, parts, recolor=None):
+    """Frames joined from PixelLab segment folders [(folder, frame numbers)], already at game size:
+    snapped, cleared of specks, recolored ({rgb: rgb}) and edged with the outline color."""
+    from snap_palette import drop_specks, snap
+    out = []
+    for folder, picks in parts:
+        for i in picks:
+            f = Image.open(Path(root) / folder / f"{i}.png").convert("RGBA")
+            f.putalpha(f.getchannel("A").point(lambda v: 255 if v > 160 else 0))
+            f = drop_specks(snap(f), 16)
+            if recolor:
+                f.putdata([recolor.get(c[:3], c[:3]) + (c[3],) for c in f.get_flattened_data()])
+            out.append(recolor_edge(f))
+    return out
+
+
+def grounded(imgs, feet):
+    """PixelLab lets the body drift off the ground (the planted foot, a falling corpse); stand each
+    frame's lowest pixel on row `feet`."""
+    out = []
+    for f in imgs:
+        c = Image.new("RGBA", f.size)
+        c.alpha_composite(f, (0, feet + 1 - f.getbbox()[3]))
+        out.append(c)
+    return out
+
+
+def export_game(files):
+    """Write finished game art {path under art/: image} to both art/ and the Godot copy, godot/art/."""
+    for rel, img in files.items():
+        for root in ("art", "godot/art"):
+            path = Path(root) / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            img.save(path)
+
+
+def breathing(base, hips=0.5, neck=0.25):
+    """A 4-frame idle from one frame: the body above the hips sinks a pixel, the head above the neck
+    a beat later. hips and neck are fractions of the sprite's height from its top."""
+    top, bottom = base.getbbox()[1], base.getbbox()[3]
+    cuts = top + round((bottom - top) * hips), top + round((bottom - top) * neck)
+    frames = []
+    for offsets in ((0, 0), (1, 0), (1, 1), (0, 1)):
+        f = base.copy()
+        for cut, dy in zip(cuts, offsets):
+            if dy:
+                band = f.crop((0, 0, f.width, cut))
+                f.paste(Image.new("RGBA", (f.width, cut)), (0, 0))
+                f.alpha_composite(band, (0, dy))
+        frames.append(f)
+    return frames
+
+
+def game_frames(raw, scale, bottom, size, feet):
+    """AI frames shrunk to game size with one scale and one feet row for the whole animation (so the
+    creature doesn't grow or hop between frames), then snapped, cleaned and outlined."""
+    from snap_palette import drop_specks, snap
+    out = []
+    for f in raw:
+        f = f.resize((round(f.width * scale), round(f.height * scale)), Image.LANCZOS)
+        f.putalpha(f.getchannel("A").point(lambda v: 255 if v > 160 else 0))
+        c = Image.new("RGBA", size)
+        c.alpha_composite(f, ((size[0] - f.width) // 2, feet - round(bottom * scale)))
+        out.append(outline(drop_specks(snap(c), 3)))
+    return out

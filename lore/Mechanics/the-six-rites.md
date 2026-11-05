@@ -19,11 +19,29 @@ Each of the six gods has a rite, and the Wanderer gives a soul to one of them. T
 ### The places and the words (round 19, kept round 20)
 
 The dark rite is offered at the same place as its good twin:
-- **The ledger** (Chapel Ruins): Ennick "Write his name" / Hush "Scrape his name".
+- **The ledger** (Chapel Ruins; every village since round 47): Ennick "Write his name" / Hush "Scrape his name".
 - **The fire:** Gled "Give him to the fire" / Grudge "Bank the coal".
-- **The road shrine:** Wend "Leave him by the road" / Mortmain "Lay him in the niche" (an iron grate closes; the stone stays visible forever).
+- **The road shrine** (wayside shrines; every village since round 47): Wend "Leave him by the road" / Mortmain "Lay him in the niche" (an iron grate closes; the stone stays visible forever).
 
 **The place is not the moral switch.** What decides is what the soul needs. (round 20)
+
+**Every village holds all three places** (round 47, decided by the user): its own ledger, its firepit as the fire, and a road shrine just inside the south gate beside the path. The chapel ledgers ([Chapel Ruins](../Locations/chapel-ruins.md)) and the [wayside shrines](../Locations/wayside-shrines.md) on the old roads still exist and still work; villages are simply the places where all three stand together. The wild ones keep what villages lack: chapel ledgers hold the war's names (rite cords, Crimson name pieces), and wayside shrines hold the Crimson Release and the old roads' milestones. (seen in: godot/scripts/world/villages.gd, godot/scripts/game/rites.gd, godot/scripts/ui/rite_panel.gd)
+
+**The Wanderer may perform the rites at any village's ledger, fire and road shrine because he is an ordained chaplain** (round 48, decided by the user: "Since the stranger is a monk (chaplain to be exact) he can."). Settles round 47's flag against round 38b. Round 38b still holds for the *last rite* over a village's own dying: families pick their own monk over a stranger (seen in: journal.json "talk_first", "They would not have a stranger, and they are right."). Supporting colour only: a stone is no one's dead in the village, so no family asks to choose.
+
+**The game never names the god behind a rite** (round 48, design rule from the user). The rite panel shows only each rite's words ("Write his name", "Bank the coal"…), and the book's rite entries don't name Ennick or Gled. The player isn't told which god a rite belongs to; he works it out. (seen in: godot/scripts/ui/rite_panel.gd, godot/scripts/game/journal.json "rite_*"; the god stays an internal key in rites.gd) Knock-ons are listed under Open.
+
+### What the build does (round 47, Godot)
+
+Built from the canon above; simplifications marked.
+- **Common souls draw one need from their soul id:** nameless (Ennick, then Wend), unforgiven (Gled, then Wend) or ready (Wend only). *Simplification:* "kept by kin" not built.
+- **The need shows only once the stone is read; good rites refuse an unread stone:** "You don't know him yet. Read the stone first." This settles "why doesn't everyone free runes at shrines?" the proposed way: a stone must be read first.
+- **Wend with needs unfinished:** "He would not go." The stone stays with him, so he can take it back after (settles that proposal). The nameless case uses the same line, not the proposed "No one called him."
+- **Ennick** writes a generated name into his book's roll of names ("Written: %s."). *Simplification:* Gled needs no keepsake item for common souls yet.
+- **Dark rites** destroy the stone and add corruption by tier; **Wend's** lowers it by tier. Hush: "The name goes out of the ledger." Mortmain: "The grate shuts. He stays." Grudge: "The coal takes him. Past the wall, something gets up." (no Hollow spawns inside the walls).
+- **In the Whisper** Mortmain's words read "Keep him safe".
+- **At the Pull** a good rite is said kneeling and costs health ("Kneel. It costs blood."). *Simplification:* the kneel (round 20, [Corruption](corruption.md)) is a flat health cost, with no held button or dimming. (seen in: rites.gd kneels, RuneBook.KNEEL_BLOOD)
+- *Not built:* Crimson stones get no rite ("No rite reaches a Crimson stone."), though round 31's Release is canon; favour and Pull-easing from dark rites; "fooled once" (learning each dark rite).
 
 ### Each soul needs something (round 20)
 
@@ -58,8 +76,9 @@ He learns each dark rite by being fooled into it once, as he was fooled as a cha
 
 ## Open
 
-- **Wrong-rite edge cases:** an unnamed soul left at the road (proposal: it stays, "No one called him."); can he take a stone back after "He would not go"? (proposal: yes).
-- **Why doesn't everyone free runes at shrines?** (round 16 hole 4) Proposal: freeing needs the name, so a stone must be read first; peasants can't read stones.
+- **Why doesn't everyone free runes at shrines?** (round 16 hole 4) The build settles the first half (a stone must be read first, round 47). Still proposal: peasants can't read stones, so no one else can.
+- **No god names in the game: knock-ons** (round 48 flags). (a) Round 41 says a stone's folk grade "turns to the god's name" once learned; under the new rule it would never turn. (b) The book's death entries still name Wend ("Wend walks the dead home.", "Wend has little left to spend"). (c) The villager dialogue data names the gods often (dialogue/data/lore/monk.jsonl and others). (d) A chaplain knows the three good gods by name, so his silence about them needs a reason; he doesn't know the Quiet gods at the start, so silence about them is natural. Proposal for (d): the Order teaches brothers never to say a god's name over the dead ("Say the work, not the name"), because a name spoken is a name spent; it is also why the Quiet gods could hide inside the same words.
+- **Dark rites without the dark monk:** round 19 has a known dark monk perform them for metal, and "fooled once" gates each. In a village the Wanderer can do them himself; if the build offers them from the start, that skips "fooled once". Proposal: the dark words stay greyed in the panel until learned.
 - Binding a Grudge-twisted soul: see [Grudge](../Gods/grudge.md). Hush's place clash: see [Offering and favour](offering-and-favour.md).
 
 ## Rejected

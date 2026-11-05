@@ -88,12 +88,15 @@ static func tier_gem(canvas: CanvasItem, tier: String, cx: float, cy: float, lit
 		rect(canvas, "rune-%s-core" % tier, cx - 1, cy - 2, 1, 1)
 
 
-static func wrap(text: String, chars: int) -> Array:
+# Lines of at most `room` characters, or `room` pixels when `measure` gives a line's width.
+static func wrap(text: String, room: int, measure := Callable()) -> Array:
 	var lines := [""]
 	for word in text.split(" "):
 		var line: String = lines[-1]
-		if line and line.length() + word.length() + 1 > chars:
+		var longer: String = line + " " + word if line else word
+		var size: float = measure.call(longer) if measure.is_valid() else longer.length()
+		if line and size > room:
 			lines.append(word)
 		else:
-			lines[-1] = line + " " + word if line else word
+			lines[-1] = longer
 	return lines

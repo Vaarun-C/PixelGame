@@ -60,6 +60,8 @@ static func create(kind: String, variant: int, at: Vector2) -> Prop:
 		prop.add_child(collision_body(box))
 	if def.get("flat", false):
 		prop.z_index = -1
+	if def.get("rite", false):
+		prop.add_to_group("rite_places")
 	if def.has("loot"):
 		prop.add_to_group("lootables")
 		prop.glint = Node2D.new()

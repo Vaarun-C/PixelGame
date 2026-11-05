@@ -19,7 +19,7 @@ const LARGE_GLYPHS := {
 	"Y": "hha4444", "Z": "v1248gv", "0": "ehjlphe", "1": "4c4444e", "2": "eh1248v", "3": "v2421he", "4": "26aiv22", "5": "vgu11he",
 	"6": "68guhhe", "7": "v124888", "8": "ehhehhe", "9": "ehhf12c", " ": "0000000", ".": "00000cc", ",": "0000c48",
 	":": "0cc0cc0", "!": "4444404", "?": "eh12404", "'": "4480000", "-": "000e000", "+": "044v440", "/": "11248gg", "%": "pq248bj",
-	"x": "00ha4ah",
+	"x": "00ha4ah", "<": "248g842", ">": "8421248",
 }
 const SMALL := {"glyphs": SMALL_GLYPHS, "w": 3, "h": 5, "line": 6}
 const LARGE := {"glyphs": LARGE_GLYPHS, "w": 5, "h": 7, "line": 10}

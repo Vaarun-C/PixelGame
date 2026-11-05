@@ -2,7 +2,7 @@
 
 Run from the repo root: .venv/bin/python art/drafts/ui/icons.py
 - art/items/item_icons_hd.png: same column order as item_icons.png (shard, blade, helm, plate, then
-  bronze/silver/gold in small, medium, large clumps).
+  bronze/silver/gold in small, medium, large clumps), then the empty stone.
 - art/runes/rune_icons_hd.png: columns are tiers 1-6, rows are the subtypes then the fused pairs. The
   stones are AI-drawn; glyphs, tier glow and halo are drawn here so every tier shares one exact glyph (ART_RULES §5).
 """
@@ -45,6 +45,9 @@ PAIRS = [(a, b) for i, a in enumerate(ORDER) for b in ORDER[i + 1:]]
 # Which blank stone (cell of the 4x4 stones grid) each family is carved into.
 STONES = {"grudge": (1, 0), "mortmain": (3, 0), "hush": (0, 2)}
 FUSED_STONE = (2, 0)  # the broad rounded tablet, wide enough for two glyphs
+# The empty stone the barterer sells: a cracked blank the monk filled with mortar, no glyph, no glow.
+EMPTY_STONE = (1, 2)
+MORTAR = [((-6, -7), (-1, -1)), ((-1, -1), (6, 1)), ((-1, -1), (-3, 7))]  # from the stone's centre
 
 
 def glyph(*kinds):
@@ -79,6 +82,37 @@ FUSED_SHIFT = 5
 CRACK = [((7, 0), (6, 5)), ((6, 5), (8, 10)), ((8, 10), (7, 16))]
 
 
+# Forced stones are bound in iron wire from the dead man's mail (lore: Willing and forced): two turns
+# across the lower-left end, iron greys only, inside the outline and clear of the glyph (ART_RULES \u00a75),
+# with a short tail off the lower turn that ties the stone on. Crimson is bare.
+WIRE_ROWS = (4, 7)  # rows above the stone's bottom; stone shows between them
+WIRE_MIN = 4  # a turn with fewer pixels left after the glyph and outline is dropped
+OUTLINE = (C["void-0"], C["void-1"])
+
+
+def wired(img, glyph_pixels):
+    px = img.load()
+    bb = img.getbbox()
+    mid = (bb[0] + bb[2]) // 2
+    inside = lambda x, y: px[x, y][3] and px[x, y] not in OUTLINE and all(
+        px[x + dx, y + dy][3] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+    clear = lambda x, y: not any((x + dx, y + dy) in glyph_pixels for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+    for i, up in enumerate(WIRE_ROWS):
+        y = bb[3] - 1 - up
+        turn = [x for x in range(bb[0], mid) if inside(x, y) and clear(x, y)]
+        if len(turn) < WIRE_MIN:
+            continue
+        for x in turn:
+            px[x, y] = C["steel-2"]
+            if inside(x, y + 1) and clear(x, y + 1):
+                px[x, y + 1] = C["steel-0"]
+        if i == 0:
+            for k in (1, 2):
+                if px[turn[0] - k, y][3] == 0 or px[turn[0] - k, y] in OUTLINE:
+                    px[turn[0] - k, y + k - 1] = C["steel-1"]
+    return img
+
+
 def carve(stone, symbols, tier, crack=False):
     """symbols: one (strokes, keys) per glyph; two are narrowed side by side (a cross-family fuse)."""
     img = stone.copy()
@@ -108,6 +142,8 @@ def carve(stone, symbols, tier, crack=False):
             px[x, y] = ramp("core")
     for x, y in keys:
         px[x, y] = ramp("core")
+    if not cursed:
+        wired(img, cut | light | set(keys))
     if cursed:
         for start, end in (((3, 14), (-2, 19)), ((12, 1), (16, -3))):  # weeping cracks and grown-in flesh
             for x, y in line(start, end):
@@ -122,6 +158,22 @@ def carve(stone, symbols, tier, crack=False):
         for i, (x, y) in enumerate(edge):
             if (x * 3 + y * 5) % 7 > 2:
                 px[x, y] = ramp("dark")
+    return img
+
+
+def patched(stone):
+    """Mortar seams across the stone: pale fill, lit on the top-left, a dark lip below-right."""
+    img = stone.copy()
+    px = img.load()
+    bb = img.getbbox()
+    cx, cy = (bb[0] + bb[2]) // 2, (bb[1] + bb[3]) // 2
+    seam = {(cx + x, cy + y) for a, b in MORTAR for x, y in line(a, b)}
+    for x, y in seam:
+        if px[x + 1, y + 1][3] and (x + 1, y + 1) not in seam:
+            px[x + 1, y + 1] = C["void-1"]
+    for x, y in seam:
+        if px[x, y][3]:
+            px[x, y] = C["ash-4"] if (x - 1, y) not in seam else C["ash-3"]
     return img
 
 
@@ -178,6 +230,7 @@ items += [fit(cell(D / "icons_scrap.png", c, r, 32)) for c, r in ((1, 0), (0, 1)
 items += [fit(cell(D / "icons_plate.png", 0, 0, 32))]
 for metal in ("bronze", "silver", "gold"):
     items += metals[metal]
+items.append(patched(fit(cell(D / "icons_stones.png", *EMPTY_STONE, 32))))
 save(sheet([items], S, S), Path("art/items/item_icons_hd.png"))
 
 stones = {f: fit(cell(D / "icons_stones.png", c, r, 32)) for f, (c, r) in STONES.items()}

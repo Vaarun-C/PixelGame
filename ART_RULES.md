@@ -25,6 +25,7 @@ The art rulebook for the game. Every sprite, tile, icon, effect and UI element m
 | Player / humanoid canvas | **32×48 px**. Feet sit on the bottom 4 px; body height is ~40 px. |
 | Player canvas (2× art) | **96×96 px**. Body ~88 px tall, centered; the extra width holds the oversized greatsword. Approved concept: `art/drafts/wanderer/approved/`. |
 | Player attack canvas (2× art) | **128×144 px**. The 96×96 body sits bottom-centered (feet at y=142) with room above and beside it for the swing. |
+| Player spell-cast canvas (2× art) | **160×160 px**, one row (cast poses face south). The body sits centered with feet at y=143; room all round for the held pose. |
 | Fodder enemy canvas (2× art) | **64×96 px** (feet at y=94); attack sheets **128×112 px** with the body bottom-centered (feet at y=110). |
 | Large enemy canvas | 64×64 px. |
 | Boss canvas | 96×96 or 128×128 px. |

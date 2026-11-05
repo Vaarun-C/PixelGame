@@ -1,0 +1,115 @@
+{
+  "the_last_field": [
+    "Last field. No one came. I took a stone off a dead man and held it. It read. I know the name."
+  ],
+  "the_name": [
+    "{name}. I said it once over a dying man and did not write it. I write it now."
+  ],
+  "three_winters": [
+    "Three winters. I gave the long words to every dying man I found, and in time they came back to me. Something was wrong with the short rite. I do not know what."
+  ],
+  "biome:the_battlefield": [
+    "Never cleared. The dead lie where they fell. I said the short words over men like these. Perhaps these."
+  ],
+  "biome:rot_swamp": [
+    "The mud takes a man's legs and keeps them. Chests in the reeds, drowned. Only black water inside."
+  ],
+  "biome:chapel_ruins": [
+    "One of our chapels. Deserters broke it at the end, they say. I was taught the rite in a house like this, and the dead walk its nave."
+  ],
+  "biome:ashen_forest": [
+    "Old pyres under the black trees. Someone burned their dead here, as it should be done. The wood never stopped burning after."
+  ],
+  "biome:frozen_pass": [
+    "Ice and cairns. Men bring silver down from here, and some do not come down. The ice tombs are open. The ice kept nothing."
+  ],
+  "village_first": [
+    "{name}. A wall of stakes, a well, a fire. I have not slept inside a wall in a long time."
+  ],
+  "village": [
+    "{name}. A wall, a well, a fire. They looked at my blade before my face.",
+    "{name}. They burn their dead here. The smoke hangs in the lanes.",
+    "{name}. Fewer of them than the last place. The wall leans.",
+    "{name}. No one asked my name. I did not give it."
+  ],
+  "search_first": [
+    "I search the dead now. Once I knelt by them. A helm off a man I may have shriven. He did not need it."
+  ],
+  "hollow_first": [
+    "Laid one down. Dead man's mail, dead man's face, and a spear. The field will stand another up by morning."
+  ],
+  "bind_first": [
+    "The empty stone took it. The Hollow fell and did not get up, and the stone glows now. I laid him to rest, I think. I said no name."
+  ],
+  "read_first": [
+    "The stone spoke. A few words, and then the same words again. A track, the Order taught. A man would answer. A stone repeats."
+  ],
+  "talk_first": [
+    "I offered the long words for their dead. They have their own monk. They would not have a stranger, and they are right."
+  ],
+  "talk_monk_first": [
+    "A brother of the Order, or what is left of one. He has the long words. He did not ask where I served, and I did not tell him."
+  ],
+  "talk_guard_first": [
+    "An old soldier on the gate. He looked at my blade, then at my hands. Keep it low inside the walls, he said."
+  ],
+  "barter_first": [
+    "Metal by weight, and every coin nicked. Bright inside is weighed. Grey inside is scrap, like the marks they paid me in."
+  ],
+  "carve_first": [
+    "I cut a notch in the edge and fed it shards. The cracks filled with light. A lamp takes oil. A relic takes shards. So I tell myself."
+  ],
+  "fuse_first": [
+    "Two relics pressed into one stone. Two tracks running the same way now. The Order never taught this."
+  ],
+  "utter_first": [
+    "I spoke a stone through the blade, the way the war spoke thousands. It burned like a wick and broke into shards. Then the ground opened and something climbed out, burning at the seams. It had no name left to call."
+  ],
+  "rite_ennick": [
+    "Their ledger keeps their own dead. I found his count in it and wrote the name beside it. What is written is not lost."
+  ],
+  "rite_gled": [
+    "I gave what he held to their fire. It burned like anything burns. He let go of it. The fire asks only that."
+  ],
+  "rite_wend": [
+    "I left him by the road, and he went. The stone was only a stone after. I felt lighter, and I did not earn it."
+  ],
+  "rite_hush": [
+    "He wanted to rest unnamed, so I scraped the name out of the ledger. A kindness. I cannot remember whose it was."
+  ],
+  "rite_grudge": [
+    "I banked the coal over him. He was so angry, and I let him keep it. That night the guards stood double at the gate."
+  ],
+  "rite_mortmain": [
+    "I laid him in the niche and the grate came down. He is safe there. I can see the stone from the road."
+  ],
+  "crimson_first": [
+    "Red. I know every grade a gleaner sorts, and not this one. It weeps at the cracks like a wound that will not close."
+  ],
+  "death_first": [
+    "I fell. There was a road, and someone walked me back along it to a gate. Wend walks the dead home. Not back."
+  ],
+  "death": [
+    "Fell again. The road turned me round again.",
+    "Woke by the gate. Wend has little left to spend, and she spends it on me.",
+    "Down, and back. I do not know how many more times the road will have me.",
+    "The road again. Someone keeps walking me home."
+  ],
+  "death_whisper": [
+    "Fell. I came back quickly, as if someone wanted me back. One of my stones is quiet now. It was tired.",
+    "Down, and back at once. They are good to me. Something I carried is quieter."
+  ],
+  "whisper": [
+    "Slept well. The stones are good company at night. Perhaps the short rite was a mercy. They went quickly.",
+    "Quiet tonight. The fire is warm and the stones are warm. Nothing on the road needs me.",
+    "I have been too hard on the short rite. It was quick, and quick is kind."
+  ],
+  "whisper_leave": [
+    "I read back what I wrote these last days. It is my hand. I do not know whose words."
+  ],
+  "pull": [
+    "Hungry. The words are on the page. I cannot read them.",
+    "The colour going again. I know this road. I walked it three winters.",
+    "Hands. Will not hold the pen. Kneel."
+  ]
+}

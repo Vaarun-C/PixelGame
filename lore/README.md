@@ -24,6 +24,7 @@ The canon for the world and story, split by subject. Each file starts with a sho
   - **Clues are exact strings.** Prisoner true names, ledger entries and names of the dead used for binding are inserted by the game, never generated.
   - **Tone guard.** Short, grim, plain words; never cheerful, modern or heroic.
   - Each template holds: role and village; mood and what they lost; what they know; cover line and tells; the dead they can name (exact strings); banned topics and withheld answers; speech style; what they remember of the Wanderer.
+- **No god names in the game** (round 48, the user): the rite panel shows only each rite's words, and the book doesn't name the gods behind them. The player isn't told which god a rite belongs to. God names stay in lore and code keys. Scope open (death entries, dialogue, stone labels): question 24.
 
 ## Index
 
@@ -34,7 +35,7 @@ The canon for the world and story, split by subject. Each file starts with a sho
 - [The Unfallen](Characters/the-unfallen.md): the Crimson prisoners, their jailers, the six.
 - [The first keeper](Characters/the-first-keeper.md): the first boss.
 - [Villagers](Characters/villagers.md): peasants, monks, guards, barterers; lines.
-- [Hollows](Characters/hollows.md): Hollows, loose souls and other creatures.
+- [Hollows](Characters/hollows.md): Hollows, loose souls, kill / burn / bind, the Misborn and other creatures.
 
 **Organizations**
 - [The Order](Organizations/the-order.md): its layers and who knew.
@@ -82,7 +83,7 @@ The canon for the world and story, split by subject. Each file starts with a sho
 - **Name:** what a thing does, given a shape. Root names (Rend, Ward, Hunger), names of kinds, and true names of noted individuals.
 - **Rune:** a name written in stone holding a trapped soul; glow = tier (strength of the bound name), glyph = type.
 - **Family (of a rune):** one of three, one per Quiet god; decided by what the man was doing as he died: refusing (Grudge), clinging (Mortmain), slipping away (Hush). The god who wants the soul most; Mortmain still holds every forced stone. The subtype is the root name, his strongest verb at death: Grudge {Rend, Break, Sting}, Mortmain {Ward, Still, Sink}, Hush {Hunger, Flee}. Shown as the glyph's spine, the subtype as its marks. (rounds 41–42)
-- **Biter / holder / taker:** the gleaners' folk grades for the Grudge, Mortmain and Hush families; shown on stones until the Wanderer learns the god, then the label turns to the god. (round 41)
+- **Biter / holder / taker:** the gleaners' folk grades for the Grudge, Mortmain and Hush families; shown on stones until the Wanderer learns the god, then the label turns to the god (round 41; the turn is flagged against round 48's no-god-names rule).
 - **Blank:** a keeper-made stone, the one thing only a keeper can make; with the withholding rite it takes a soul. The crown or company paid keepers for blanks and handed them to chaplains with their wages; captains took them for prayer stones. (rounds 36, 38b)
 - **Rune Shard:** feeds a rune's growth; spent to carve and fuse; returned when a rune is uttered. Not soul.
 - **Notch:** a carved mark on a rune's edge; one per level of growth, max five.
@@ -90,7 +91,9 @@ The canon for the world and story, split by subject. Each file starts with a sho
 - **Kind (of a fused rune):** the name two root names spell together, e.g. Wolf (Rend + Hunger), Ox (Break + Ward), Crow (Hunger + Flee); 28 in all, each with one trait. (rounds 3, 42)
 - **Consent (fusing):** whether two willing souls agree to share a stone; learned by reading both. (round 14)
 - **Compatibility (fusing):** whether two souls can share a stone at all; a fact, not will. (round 15)
-- **Loose soul:** the soul of a rune broken unspoken (or a cut-short rite with no blank); walks the nearest unburned corpse as a Hollow; killed, it walks again after a lull; only binding ends it. (rounds 8–10, 13, 15, 36)
+- **Loose soul:** the soul of a rune broken unspoken (or a cut-short rite with no blank); walks the nearest unburned corpse as a Hollow; killed, it rises again in the same body after a long window; burned, it takes the nearest unrisen man's corpse, else a beast's (Misborn), else drifts; only binding catches it. Killing and burning cost no corruption; binding does. (rounds 8–10, 13, 15, 36, 49)
+- **Misborn:** a man's loose soul in a beast's corpse, when no man's corpse is left; bred by plain burning, never by Gled's fire. E.g. a dead warhorse forced upright, helmet rammed on its skull, screaming in a man's voice, one word when it dies. A beast's soul never takes a man's body. (round 49)
+- **At rest:** an area whose souls are all bound or burned. (round 49, design intent)
 - **Rite cord:** a knotted cord tied at the dying man's wrist; its knots are a number, looked up in a chapel ledger or with a monk. (rounds 13, 19)
 - **War chaplain:** a monk who gave the field form on the battlefields; the Wanderer was one. Learned both forms. (rounds 9, 16, 38)
 - **Field form / withholding rite:** the rite cut short before the release; Mortmain's craft; taught to chaplains as the war's hasty dispensation. (rounds 19, 28, 36, 38)
@@ -121,20 +124,20 @@ The canon for the world and story, split by subject. Each file starts with a sho
 - **Last rites (false):** the rite for the dying, believed to free the soul; it traps only with a blank in the dying man's hand. Souls so taken count as forced. (rounds 7–8, 36)
 - **Reading:** learning a rune by doing what it names; personal.
 - **Lash / lashed:** a stone lends its verb only when lashed against bare steel: three spots on the blade (left guard arm, right guard arm, ricasso), two on the armour (where the straps cross bare plate, for Ward). Forced stones are tied with their own wire tail; willing stones with cord, gut or thong. No changing stones with Hollows near. Replaces "socket" in canon; the code still says socket. (round 39)
-- **Utterance:** speaking a lashed rune's name through the blade; burns the soul for a spell, shatters the rune, returns shards, adds corruption; Grudge eats a scrap of the rage, and his leftovers rise as a hatred Hollow. (rounds 10, 37)
+- **Utterance:** speaking a lashed rune's name through the blade; burns the soul for a spell, shatters the rune, returns shards, adds corruption; Grudge eats a scrap of the rage, and his leftovers rise as a hatred Hollow. (rounds 10, 37; built round 48, keys 1–5, see [Uttering](Mechanics/uttering.md))
 - **Freeing:** finishing what a soul lacks, ending with Wend's rite at a wayside shrine; the only thing that lowers corruption. (rounds 7–8, 19–20)
 - **Gratitude:** the name for what lowers corruption. Not a separate meter. (round 8)
 - **Offering:** Hush's rite; the name is forgotten even by kin, the soul consumed, the rune destroyed; no shards, no Hollow; more corruption than an utterance; eases the Pull more; earns quiet stones. (rounds 6–13, 19)
 - **Favour:** a dark god's thanks for his rite: Hush, quiet stones; Mortmain, dark monks warm to him; Grudge, "Not yet". Scales with tier; always true. (rounds 12–13, 19, 21, 37)
 - **Living binding:** binding a living person's name without consent; only as a dark rite; the victim goes hollow; the heaviest corruption. (round 21)
 - **Spent / forgotten name:** an uttered name is spent (remembered, names nothing); an offered name is forgotten. (round 12)
-- **Binding:** putting a true name into an empty rebuilt stone. It calls the name, not a body; the result shows where the soul was. Binding is trapping. (round 13)
+- **Binding:** trapping a soul in a stone; costs corruption. At a laid-down body before it rises (a breath), a true blank takes the soul present, giving an unread forced stone (round 49). By name, an empty rebuilt stone calls the soul from wherever it is; the result shows where it was (round 13).
 - **Carver:** the village monk, who patches shattered runes with mortar for metal. (rounds 5, 37)
-- **Chapel ledger:** a record of names in the Chapel Ruins. (design canon)
+- **Chapel ledger:** a record of names in the Chapel Ruins. (design canon) Every village keeps its own ledger too (round 47).
 - **Corruption:** the Wanderer's one meter; follows acts, not intent; starts around 25–35%; lowered only by freeing. (design canon)
 - **Willing / forced rune:** a soul that came willingly (bare, no downside, speaks its name) or was trapped (wired, a downside from Mortmain's grip, growing with tier). (rounds 6–10, 37)
-- **Wayside shrine:** a roadside altar of the good gods where souls are freed.
-- **Hollow:** a risen husk walked by a loose soul, or a hatred Hollow raised from an utterance (nameless, ember, stays dead, no body). (rounds 10–13)
+- **Wayside shrine:** a roadside altar of the good gods where souls are freed. Every village has one just inside its south gate (round 47).
+- **Hollow:** a risen husk walked by a loose soul, or a hatred Hollow raised from an utterance (nameless, ember, stays dead, no body). All enemies are Hollows in different bodies: men, beasts, Misborn; most bosses too, except the living keepers and Unfallen. (rounds 10–13, 49, 49b)
 - **Scrap:** Rusted Blade ("Snapped near the hilt."), Dented Helm ("Its owner didn't need it."), Cracked Plate ("Pierced through the heart."). (seen in: items.js)
 - **Bronze / Silver / Gold:** metals counted in grams, the only currency. (rounds 22–23)
 - **Grave coin / road coin / eye-coin:** a crow on each eye of the dead, the kin's gift for Wend's road; Wend asks no fee. (round 23)
@@ -164,4 +167,11 @@ Resume here. Recommendations in brackets.
 17. ~~The mapping~~ settled round 42: Grudge {Rend, Break, Sting}, Mortmain {Ward, Still, Sink}, Hush {Hunger, Flee}, spine-and-marks glyphs, built (see [Rune types](Runes/rune-types.md)).
 18. **Fuller favour** (first half, folk grades first, settled round 41): does giving a stone to its own family's god give fuller favour and ease the Pull more? [Yes, same corruption.]
 19. **Round 42 flags** (see [Fusing](Runes/fusing.md) Open): (a) kind names already mean beasts (round 3 "every wolf shares one", round 34 beast stones): is a Rune of the Wolf two men who spell "wolf", and how does it differ from a true (Pale) beast stone? [Two men; the kind is the shape their verbs make together, which is why the old readers called beasts by the same names. A beast stone is one soul, already whole, and can't be fused.] (b) Bramble, Sundew and Oak have no souls: are names of kinds for anything that acts? [Yes, names are "what a thing does"; nettle already counts for Sting.] (c) Kinds overlap the built resonances: Beetle = Leech-shell (overhealing becomes a shield), Wolf ≈ Bloodletting, Ox ≈ Bulwark; and "Leech" is both a kind and part of a resonance name. [Design call; rename one side.]
-- Still queued: binding a Grudge-twisted soul (nothing answers, or ember?); the Hush place clash (ledger vs spent reliquary); failed fuse A (A1 leading); is the wire on a bound willing volunteer?
+20. **Echo pool repeats** (round 44): many stones share each of the 8 lines per verb. Accept as in-world ("men die alike"), split echoes into two fragments, or keep kin and places only on clue stones? [Two fragments, plus the in-world line.]
+21. ~~The Wanderer's book~~ settled round 46: his office book, belt-chained, Whisper entries kinder, Pull hand broken, plain-hand margin notes (see [The Wanderer](Characters/the-wanderer.md)). Left over: (a) names written only after the game gives them as exact strings, never a source [yes]; (b) long rite pages read blank at the Pull until he kneels [yes]; (c) a separate Whisper-death entry, since Wend doesn't send him back there [yes, "death_whisper" in journal.json].
+22. **Empty stones at the stall** (round 49b: true blanks are sold at the village chapel; only the barterer's text is left to fix) (round 46 flag): godot/scripts/game/items.gd says the barterer sells empty stones, but the barterer's dialogue says "No stones at my stall." [Sell them through the village monk, who patches them.]
+23. **Round 47 flags** (villages hold all rite places; see [The six rites](Mechanics/the-six-rites.md), [Villages](Locations/villages.md)): (a) ~~a stranger at the village's rite places~~ settled round 48: he can, because he is an ordained chaplain. (b) and (c): the user "will decide". (b) Hush's rite at every village ledger vs round 12's offering at a spent reliquary below 75%. [Both work; the ledger is Hush's rite, the reliquary his old larder.] (c) dark rites usable before "fooled once" teaches them? [Greyed until learned.] (d) why Grudge's Hollow rises past the wall. [Nearest unburned body; inside, the dead are burned.] (e) ~~nothing lowers corruption at the Pull~~ settled: a good rite at the Pull costs blood (a flat health cost for now).
+24. **No god names: scope** (round 48 flags; see [The six rites](Mechanics/the-six-rites.md) Open): (a) does the stone's folk grade still turn to the god once learned, or stay biter / holder / taker for good? [Stay folk grades; the god is learned from the world, never labelled.] (b) the book's death entries name Wend twice ("Wend walks the dead home."): reword? [Yes: "The road walks the dead home."] (c) does the rule cover villager speech? The dialogue data names the gods often. [Villagers may name the good gods as folk do; nobody names a Quiet god.] (d) in-world reason a chaplain doesn't name gods he knows: [The Order's "Say the work, not the name": a name spoken is a name spent.]
+25. **Uttering flags** (round 48; see [Uttering](Mechanics/uttering.md) Open): (a) the Hollow barrier makes uttering inside a village safe: hatred Hollows ignore the barrier, or rise past the wall? [Ignore it; the guard's line earns its keep.] (b) a fused stone burns two souls but raises one Hollow. [One Hollow at the higher tier, double ember.] (c) armour stones uttered vs "through the blade". [Reword: "through the steel it's lashed to".] (d) Hollow strength by tier, not spell power. [Accept: "by the soul's tier".]
+26. **Round 49 leftovers** (see [Hollows](Characters/hollows.md) Open; c, d, e settled round 49b): (a) binding at the body vs binding by name: keep both? [Yes.] (b) **prologue redesign:** the deliberate binding vs "he still doesn't know the field form traps"; the user will decide the new scenes [he does it as the field form, from habit]. (f) why Gled's fire breeds no Misborn [it cuts the soul's grip on any flesh; it drifts until bound by name] ([Gled](Gods/gled.md)). (g) the Misborn's word and stone: open until beast runes are decided. (h) true blank vs patched stone [blank binds at the body at full tier; patched binds only by name, one tier lower] and who makes the chapel's blanks [war stock sold by an ordinary monk; a dark monk may make more] ([Rebuilding and binding](Runes/rebuilding-and-binding.md)). (i) a chapel in every village vs "at most one monk" ([Villages](Locations/villages.md)).
+- Still queued: binding a Grudge-twisted soul (nothing answers, or ember?); failed fuse A (A1 leading); is the wire on a bound willing volunteer?

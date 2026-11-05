@@ -11,9 +11,12 @@ The good goddess of the Letting Go. She cuts the ties that keep a soul from leav
 - **What burns under her rite is what holds the soul** (a keepsake, a letter), not the stone. (round 20)
 - **Someone to let it go:** when kin can't let go, they must burn their keepsake themselves. (round 20)
 - **Her buff** (round 21): for a while, Hollows laid down nearby burn and stay down. Practical, never combat power.
+- **Her burning, rite or buff, does not breed Misborn** (round 49b, the user), unlike plain burning. See [Hollows](../Characters/hollows.md).
 - Her step gives no corruption drop; the soul goes free only at Wend's road. (round 20)
 - **No fire root name:** fire belongs to Gled and Grudge, and "what burns is free of the hand", so burning cannot be held in stone. (round 21 rule for new root names)
 
 ## Open
+
+- **Why does her fire breed no Misborn?** (open question, round 49b) [Plain fire only burns the body, so the soul grabs the next one. Hers cuts the soul's grip on any flesh ("what burns is free of the hand"); it drifts until bound by name. Not freed; only Wend's road frees.] See [Hollows](../Characters/hollows.md).
 
 - **Proposal (round 37, not decided):** the Letting Go starves Grudge: a soul that dies at peace gives him nothing. See [Grudge](grudge.md).

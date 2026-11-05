@@ -22,7 +22,7 @@ Proposals (round 37, not decided):
 - **Grudge doesn't start wars, he keeps them going.** Battlefields of men dying angry are his feast.
 - **The Letting Go starves him:** a soul that dies at peace gives him nothing.
 - **Uttering a willing rune raises no Hollow.** Not recommended: it breaks "every utterance raises a Hollow" (round 10).
-- **Binding a soul Grudge twisted into a Hollow** (round 20 thread): proposal "nothing answers", as for a hatred Hollow, since his rite consumes the soul. Cost: binding can't tell a Grudge soul from a freed one. Fix if needed: near a fire the binding answers with ember ("Something answered, and it was angry."). Also open: whether a Grudge-rite Hollow has all hatred Hollow traits (recommended yes) and where it rises (at the fire; a village firepit would put it inside the walls).
+- **Binding a soul Grudge twisted into a Hollow** (round 20 thread): proposal "nothing answers", as for a hatred Hollow, since his rite consumes the soul. Cost: binding can't tell a Grudge soul from a freed one. Fix if needed: near a fire the binding answers with ember ("Something answered, and it was angry."). Also open: whether a Grudge-rite Hollow has all hatred Hollow traits (recommended yes) and where it rises. The build (round 47, rites.gd) raises it outside the village: "The coal takes him. Past the wall, something gets up." Why outside is open; proposal: it takes the nearest unburned body, and inside the walls the dead are burned (round 39), so the nearest lies beyond the palisade.
 
 ## Rejected
 

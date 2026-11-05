@@ -3,7 +3,10 @@ class_name Runes
 # Runes lashed to the wanderer's blade (3) and armor (2). Numbers live in RuneBook. Each verb gives a
 # passive by tier; a fused rune's kind adds a trait; sets of verbs in one part form resonances.
 const SOCKETS := {"blade": 3, "armor": 2}
+const MAX_ARMOR := 0.75
 const MAX_NOTCHES := RuneBook.MAX_NOTCHES
+
+static var echoes := {}
 
 
 static func empty_sockets() -> Dictionary:
@@ -15,6 +18,8 @@ static func empty_sockets() -> Dictionary:
 
 
 static func fits(key: String, part: String) -> bool:
+	if key == Items.EMPTY_STONE:
+		return part == "blade"
 	return Items.info(key).types.any(func(t): return RuneBook.SUBTYPES[t].part == part)
 
 
@@ -26,22 +31,76 @@ static func strength(info: Dictionary) -> float:
 	return 1 + info.notches * RuneBook.NOTCH_BONUS
 
 
+# A per-tier value for one verb of a stone, scaled by its notches, its fused share and whether that
+# verb is read.
+static func scaled(tiers: Array, type: String, info: Dictionary) -> float:
+	var read: bool = info.souls[info.types.find(type)].read
+	return tiers[info.tier - 1] * strength(info) * share(info) * (1.0 if read else RuneBook.UNREAD_POWER)
+
+
 static func tier_value(type: String, info: Dictionary) -> float:
-	return RuneBook.SUBTYPES[type].tiers[info.tier - 1] * strength(info) * share(info)
+	return scaled(RuneBook.SUBTYPES[type].tiers, type, info)
+
+
+static func spell_value(type: String, info: Dictionary, corruption: float) -> float:
+	return scaled(RuneBook.SPELLS[type].tiers, type, info) * (RuneBook.PULL_POWER if corruption >= 1.0 else 1.0)
+
+
+# Mortmain's grip on one verb of a forced rune; Crimson's burden is its prisoner's instead.
+static func grip_value(type: String, info: Dictionary) -> float:
+	return 0.0 if info.tier == RuneBook.CRIMSON else RuneBook.GRIPS[type].tiers[info.tier - 1] * share(info)
+
+
+static func grip_text(type: String, value: float) -> String:
+	return RuneBook.GRIPS[type].text % roundi(value)
+
+
+# The soul's echo: fixed per stone, chosen by its soul id (echoes.json). "" for stones from older saves.
+static func echo(verb: String, id: int) -> String:
+	if echoes.is_empty():
+		echoes = JSON.parse_string(FileAccess.get_file_as_string("res://scripts/game/echoes.json"))
+	var lines: Array = echoes.get(verb, [])
+	return lines[id % lines.size()] if id and lines else ""
 
 
 static func kind(info: Dictionary) -> Dictionary:
 	return RuneBook.KINDS.get("-".join(info.types), {})
 
 
+# percent: the verb's value as a tier list holds it (Still's in hundredths of a second).
+static func verb_text(type: String, percent: float) -> String:
+	return RuneBook.SUBTYPES[type].text % (percent / 100 if type == "still" else roundi(percent))
+
+
 static func passive_lines(key: String) -> Array:
 	var info := Items.info(key)
 	var lines := [" and ".join(info.types.map(func(t): return RuneBook.FAMILIES[RuneBook.SUBTYPES[t].family].grade))]
 	for t in info.types:
-		var value := tier_value(t, info)
-		lines.append(RuneBook.SUBTYPES[t].text % (value / 100 if t == "still" else roundi(value)))
+		lines.append(verb_text(t, tier_value(t, info)))
 	if kind(info):
 		lines.append(kind(info).desc)
+	if info.tier != RuneBook.CRIMSON:
+		for t in info.types:
+			lines.append("Spoken: " + RuneBook.SPELLS[t].text % spell_value(t, info, 0.0))
+	return lines
+
+
+# [text, colour] per verb: its grip, then how far it is read, or what its echo says and what part of
+# its death it still needs (Rites). done: the bag's rites ledger.
+static func soul_lines(key: String, reading: Dictionary, done: Dictionary) -> Array:
+	var info := Items.info(key)
+	var lines := []
+	for i in info.types.size():
+		var t: String = info.types[i]
+		var soul: Dictionary = info.souls[i]
+		if grip_value(t, info):
+			lines.append([grip_text(t, grip_value(t, info)), "blood-4"])
+		if soul.read and echo(t, soul.id):
+			lines.append(["Echo: " + echo(t, soul.id), "ash-4"])
+		if soul.read and info.tier != RuneBook.CRIMSON:
+			lines.append([RuneBook.NEED_TEXT[Rites.next_need(soul.id, done)], "ash-3"])
+		elif not soul.read:
+			lines.append(["Unread %d/%d" % [reading.get(str(soul.id), 0), RuneBook.READ_USES[info.tier - 1]], "ash-3"])
 	return lines
 
 
@@ -68,26 +127,54 @@ static func fuse_cost(a: String, b: String) -> int:
 
 static func carved(key: String) -> String:
 	var info := Items.info(key)
-	return Items.rune_key(info.types, info.tier, info.notches + 1)
+	return Items.rune_key(info.types, info.tier, info.notches + 1, info.souls)
 
 
+# Both souls keep their ids and what has been read of them, in verb order.
 static func fused(a: String, b: String) -> String:
-	var types := [Items.info(a).types[0], Items.info(b).types[0]]
-	types.sort_custom(func(p, q): return RuneBook.ORDER.find(p) < RuneBook.ORDER.find(q))
-	return Items.rune_key(types, maxi(Items.info(a).tier, Items.info(b).tier))
+	var souls := [Items.info(a).souls[0], Items.info(b).souls[0]]
+	souls.sort_custom(func(p, q): return RuneBook.ORDER.find(p.verb) < RuneBook.ORDER.find(q.verb))
+	return Items.rune_key(souls.map(func(s): return s.verb), maxi(Items.info(a).tier, Items.info(b).tier), 0, souls)
+
+
+# Doing what a lashed rune names reads it: its soul's uses count up in the bag's reading ledger, and
+# at the tier's count the stone gives full power and its echo.
+static func practise(p, verb: String) -> void:
+	for part in SOCKETS:
+		var lashed: Array = p.inventory.sockets[part]
+		for i in lashed.size():
+			if not lashed[i] or lashed[i] == Items.EMPTY_STONE:
+				continue
+			var info := Items.info(lashed[i])
+			var j: int = info.types.find(verb)
+			if j < 0 or info.souls[j].read:
+				continue
+			if p.inventory.practise(info.souls[j].id) < RuneBook.READ_USES[info.tier - 1]:
+				continue
+			info.souls[j].read = true
+			lashed[i] = Items.rune_key(info.types, info.tier, info.notches, info.souls)
+			p.inventory.save()
+			var line := echo(verb, info.souls[j].id)
+			p.said.emit("Echo: " + line if line else "The stone answers.", "bone-0")
+			if line:
+				Journal.write("read_first")
+				Journal.echo(verb, line)
 
 
 # Everything the sockets do, recomputed whenever they change. Verb values are fractions (Still's in
-# seconds); kinds are the fused runes' traits with their power.
-static func stats(sockets: Dictionary) -> Dictionary:
-	var result := {"cursed": {}, "resonances": [], "kinds": []}
+# seconds); kinds are the fused runes' traits with their power. strength and armor come from the
+# smith's work on his gear (Smith), not from runes.
+static func stats(sockets: Dictionary, forged := {}) -> Dictionary:
+	var result := {"cursed": {}, "resonances": [], "kinds": [], "grip": {}, "strength": Smith.bonus(forged, "strength"), "armor": Smith.bonus(forged, "armor")}
 	for t in RuneBook.ORDER:
 		result[t] = 0.0
+		result.grip[t] = 0.0
 	for part in SOCKETS:
-		var infos: Array = sockets[part].filter(func(k): return k).map(func(k): return Items.info(k))
+		var infos: Array = sockets[part].filter(func(k): return k and k != Items.EMPTY_STONE).map(func(k): return Items.info(k))
 		for info in infos:
 			for t in info.types:
 				result[t] += tier_value(t, info) / 100
+				result.grip[t] += grip_value(t, info)
 				if info.tier == RuneBook.CRIMSON:
 					result.cursed[t] = true
 			if kind(info):
@@ -177,7 +264,7 @@ static func break_foe(s: Dictionary, p, e, amount_: float) -> void:
 # Combat hooks. p is the player (hp, max_hp, shield, rune_hits, riposte, empower, guard, guard_time,
 # still_time, since_hurt, self_bleed, move).
 static func strike_damage(s: Dictionary, p, e, base: float) -> float:
-	var mult: float = (1 + s.rend) * (2.0 if p.riposte else 1.0) * (1 + p.empower / 100)
+	var mult: float = (1 + s.rend + s.strength) * (2.0 if p.riposte else 1.0) * (1 + p.empower / 100) * (1 - s.grip.flee / 100)
 	for k in kinds(s, "strike", "damage").filter(func(k): return met(k, p, e)):
 		mult *= 1 + amount(k) / 100
 	p.riposte = false
@@ -189,6 +276,8 @@ static func heal(s: Dictionary, p, amount_: float, source: String) -> void:
 	var gorge := resonance(s, "Gorge")
 	if gorge and gorge.cursed and source != "Gorge":
 		return
+	if source != "hunger":
+		amount_ *= 1 - s.grip.hunger / 100
 	var room: float = p.max_hp - p.hp
 	p.hp += minf(room, amount_)
 	if amount_ <= room:
@@ -209,6 +298,9 @@ static func on_strike(s: Dictionary, p, e, damage: float, finisher: bool) -> boo
 	if finisher:
 		fire(s, "finisher", p, e)
 	p.rune_hits += 1
+	for t in ["rend", "break", "still", "sink", "hunger"]:
+		if s[t]:
+			practise(p, t)
 	if s.hunger:
 		heal(s, p, damage * s.hunger, "hunger")
 	if s.break:
@@ -233,9 +325,24 @@ static func on_strike(s: Dictionary, p, e, damage: float, finisher: bool) -> boo
 
 
 static func on_kill(s: Dictionary, p) -> void:
+	p.hp = maxf(1, p.hp - s.grip.rend)
 	var gorge := resonance(s, "Gorge")
 	if gorge:
 		heal(s, p, p.max_hp * RuneBook.GORGE_HEAL * gorge.power, "Gorge")
+
+
+# A Hollow killed with an empty stone lashed to the blade goes into the stone instead of walking again:
+# a forced Pale rune of a verb it died doing. Binding is trapping, so it costs corruption. Returns the
+# bound rune's key, or "".
+static func bind(sockets: Dictionary, p) -> String:
+	var slot: int = sockets.blade.find(Items.EMPTY_STONE)
+	if slot < 0:
+		return ""
+	var verb: String = RuneBook.ORDER.pick_random()
+	var key := Items.rune_key([verb], 1, 0, Items.new_souls([verb]))
+	sockets.blade[slot] = key
+	p.corruption = minf(1.0, p.corruption + RuneBook.BIND_CORRUPTION)
+	return key
 
 
 # A dodged blow arms Riposte.
@@ -246,6 +353,8 @@ static func on_dodged(s: Dictionary, p) -> void:
 
 static func on_dodge(s: Dictionary, p) -> void:
 	fire(s, "dodge", p)
+	if s.flee:
+		practise(p, "flee")
 
 
 # The dodge passes foe e.
@@ -257,14 +366,14 @@ static func dodge_factor(s: Dictionary, p) -> float:
 	var bonus := 0.0
 	for k in kinds(s, "always", "dodge").filter(func(k): return met(k, p, null)):
 		bonus += amount(k)
-	return 1 + s.flee + bonus / 100
+	return (1 + s.flee + bonus / 100) * (1 - s.grip.sink / 100)
 
 
 static func dodge_cooldown_factor(s: Dictionary) -> float:
 	var quick := 0.0
 	for k in kinds(s, "always", "quick"):
 		quick += amount(k)
-	return maxf(0.3, 1 - quick / 100)
+	return maxf(0.3, 1 - quick / 100) * (1 + s.grip.still / 100)
 
 
 # Damage the player actually takes from a blow by `attacker` (may be null), after shields:
@@ -275,7 +384,9 @@ static func take_hit(s: Dictionary, p, damage: float, attacker = null) -> Dictio
 		guard += amount(k)
 	var bulwark := resonance(s, "Bulwark")
 	var cursed_sets: int = s.resonances.filter(func(r): return r.cursed and r.name != "Flay" and r.name != "Gorge").size()
-	var hurt := damage * (1 - minf(0.75, s.ward + guard / 100)) * pow(RuneBook.CURSED_DAMAGE_TAKEN, cursed_sets)
+	var hurt: float = damage * (1 - minf(MAX_ARMOR, s.ward + s.armor + guard / 100)) * pow(RuneBook.CURSED_DAMAGE_TAKEN, cursed_sets) * (1 + s.grip.break / 100)
+	if s.ward:
+		practise(p, "ward")
 	if s.cursed.has("rend"):
 		hurt += RuneBook.CRIMSON_HURT
 	if bulwark:
@@ -290,6 +401,9 @@ static func take_hit(s: Dictionary, p, damage: float, attacker = null) -> Dictio
 		if reflect > 0:
 			var back := damage * reflect
 			attacker.take_damage(back, (attacker.position - p.position).angle(), 0.0, false)
+			p.hp = maxf(1, p.hp - back * s.grip.sting / 100)
+			if s.sting:
+				practise(p, "sting")
 			for k in kinds(s, "reflect", "heal"):
 				heal(s, p, back * amount(k) / 100, "kind")
 		fire(s, "hurt", p, attacker)
@@ -313,4 +427,4 @@ static func update(s: Dictionary, p, dt: float, calm: bool) -> void:
 
 
 static func speed_factor(s: Dictionary) -> float:
-	return (RuneBook.CRIMSON_SLOW if s.cursed.has("ward") else 1.0) * (1 + s.flee)
+	return (RuneBook.CRIMSON_SLOW if s.cursed.has("ward") else 1.0) * (1 + s.flee) * (1 - s.grip.ward / 100)

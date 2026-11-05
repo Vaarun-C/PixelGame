@@ -6,7 +6,7 @@ The old chapels where stones were kept. They fell late in the war when the stone
 
 - **Fallen walls, pillars, statues, reliquaries, runestones.** Runes are far more common here than anywhere else, Ward most of all. (seen in: biomes.js, reliquary loot)
 - **The reliquaries** are where the souls taken under the false rites were kept. **Spent reliquaries** are the old larder where offerings are made (round 12).
-- **Chapel ledgers** (new prop, design canon) record names, including pieces of Crimson prisoners' true names. The ledger is Ennick's and Hush's rite place (round 19).
+- **Chapel ledgers** (new prop, design canon) record names, including pieces of Crimson prisoners' true names. The ledger is Ennick's and Hush's rite place (round 19). Since round 47 every village has its own ledger too; chapel ledgers keep the war's names.
 
 ### How the chapels fell: the keepers cleared the larder (round 29, CR1)
 

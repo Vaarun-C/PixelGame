@@ -31,12 +31,22 @@ The player. A former war chaplain who gave the last rite to the dying by the tho
   - Gameplay opens: "The last field. No one came to say it was over." Taking the stone: "A shriving hand holds no stone." / "I hold it anyway." Reading: "The stone reads. It says nothing." Then the name, then "I know this name. I said it." Card: "Three winters later."
   - **The lashing beat** (round 39, design canon): he pulls the stone's wire tail with his teeth and winds it round the ricasso; the first turns slip; he pulls it tight. Then the dead rise, and he cuts until it reads.
   - **The name in the stone is a placeholder** ("Aldric Venn" in the code). Not canon; the user must choose it.
+  - **Round 49 additions** (design canon, the user): the dead he kills keep rising, in the same bodies; he is grim and resolved, not frantic. The first name he reads is a man he shrove himself (as round 38b). The dead rise again quickly here (round 49b). One of the first corpses he laid down gives a breath; he takes a blank from his own bag, traps the soul in it, and so gets his **second rune, unread.** See [Hollows](hollows.md).
 - **The three missing years** (round 38; ~3 years ago to year 0): woken, he gave the **long rite**, done perfectly and without haste, to the dying he met. At first out of guilt, after seeing bodies everywhere; then for peace, because the more he did it the more peaceful he became. At the Pull every good rite cost blood (the kneel). A full good death given to a dying man without a blank counted as Wend's rite, so his corruption fell slowly to 25–35% by year 0.
 - **He barely survived the withdrawal** (round 38b). He arrives at year 0 thin and worn.
 - **He still doesn't know the field form traps** (round 38). He felt peace, not understanding. The staged break stays intact.
 - **What he knows at the start** (round 38b): that *something* was wrong with the field form (why he chose the long rite for three years), not *what*.
 - **Backstory only** (round 38): in play, the long rite to the dying does NOT lower corruption. Only freeing at Wend's road does. **Why** (round 38b): the war gave him endless dying men; now few die near him, and villages have their own monks, who gave the rites to their ancestors, so they'd rather have them than a stranger.
+- **He may perform the rites at any village's ledger, fire and road shrine,** because he is an ordained chaplain (round 48, the user). See [The six rites](../Mechanics/the-six-rites.md).
 - **Death and return:** see [Death](../Mechanics/death.md).
+- **His book** (round 46; the user's idea from round 45). **Canon:** it is his chaplain's office book (option A): the long and the short rite, and ruled pages at the back for the names of the shriven, which he never filled ("Thousands. I did not count them."). He fills them now. **Scope** (the user): it covers everything that adds flavour to the character and the story: echoes heard, notes on what he lives through (written automatically, in his voice), and the player's own notes. (seen in: godot/scripts/game/journal.json, being built)
+  - **Accepted design** (round 46, not built yet):
+    - **Worn, not carried:** chained to his belt, so it comes back with him on death like sword and plate, and the dark gods never take it (it holds no soul).
+    - **He writes only what he believes at the time.** Early entries call stones relics and echoes tracks; nothing in them goes past the staged break.
+    - **The Whisper:** entries written at 75% or more read kinder or a little off, never false names. Entries written below 75% stay true (memory beats the lie, as with found shrines). Back below 75%, the Whisper entries stay as he wrote them.
+    - **The Pull:** the hand breaks; entries go short and shaky; no echo entries (echoes stop).
+    - **Player notes** go in the margins in a plain hand, never voiced and never changed by corruption.
+  - **Entry text is game data**, his claims at the time, not canon facts (like the echo pool).
 
 ### Story (round 8, 9, 16)
 
@@ -47,6 +57,7 @@ The player. A former war chaplain who gave the last rite to the dying by the tho
 
 ## Open
 
+- **Prologue redesign (open, round 49b: the user says the new prologue scenes still need deciding). The prologue binding vs "he still doesn't know the field form traps"** (round 38) and "something was wrong with the field form" (round 38b). Trapping a soul in a blank on purpose looks like knowing. Proposal: he does it from habit, as the field form over a man already down, believing he shrives him; only later does he learn the two are the same act. Also: he is a chaplain who refused the short rite for three years after this, yet does it here; the madness of the Pull can carry that.
 - **The main story arc and the ending(s)** (ranked 1 in the old list). Everything feeds it. Endings for the Greying: see [Hush](../Gods/hush.md). **Round 40 proposals below; nothing chosen.**
 
 ### Round 40 proposals: the arc's spine (not canon)
@@ -81,7 +92,12 @@ Decided when the court keeper falls at the Mother House, from what the player di
 - **Prologue text notes** (round 38c, no clash): line 1 "died and said" is the common telling (the war was really fought over the stone's certified echo; the narrator needn't know the difference). "A generation" matches canon (~28 years).
 - **Line 9 risk, still to watch** (round 38d): players may read the grey world as his madness. Canon says the grey is the Greying; something later in the game should show the grey stays after he is sane.
 - **Smithed settings as a rich man's fitting** (round 39 proposal, deferred by the user): did lords and champions have stones set in forged sockets? Two old references say the king's champion "socketed" his Rend stone (round 27: [The testament war](../Timeline/the-testament-war.md), [The testament king](the-testament-king.md)). Left as written until this is decided.
-- **Echo voice:** "echoes are heard in the reader's own inner voice" is a proposal only, so "he knows the voice" is dropped: he knows the name.
+- **The book, still undecided** (round 46; the rest is in Canon):
+  - **Names:** a name is written only after the game has given it as an exact string (reading, kin, cord, ledger); the book is a record, never a source, and writing a name in it is not Ennick's rite. (Proposal; the user hasn't ruled on it.)
+  - **Pre-numbered lines** with his cord run, only if S1 is chosen.
+  - **The long rite pages read blank at the Pull until he kneels** (line 10). Proposal; "the broken hand" was accepted, this part wasn't stated.
+  - **Death in the Whisper:** the dark gods, not Wend, send him back, so a death entry there can't thank Wend. journal.json has an extra key "death_whisper" for this; needs the user's OK and code support.
+  - Rereading early entries after "An echo does not answer" as the break seen on the page (proposal).- **Echo voice:** "echoes are heard in the reader's own inner voice" is a proposal only, so "he knows the voice" is dropped: he knows the name.
 
 ## Rejected
 
@@ -89,4 +105,5 @@ Decided when the court keeper falls at the Mother House, from what the player di
 - **The Wanderer was the king's chaplain.** Rejected round 27: it would make the world turn on him, and under Hush he'd have forgotten anyway.
 - **"His faith held the door mostly shut"** (round 11 reason for his starting corruption). Rejected round 38: it is intent under another name, and corruption follows acts. He reached the Pull and came down through the long rite.
 - **First reading on the first screen, at year 0** (round 25). Moved round 38 to the prologue, ~3 years ago, at the Pull.
+- **The book as a war tally book (B) or a dead gleaner's book (C)** (round 45 proposals). Not chosen round 46: B clashes with "Thousands. I did not count them."; C loses his voice and his past. The user chose A, his office book.
 - **"You know this name. You said it."** (round 25 message). Replaced round 38 by "I know this name. I said it.": the old line read like the stone speaking, and the name comes from his own memory.

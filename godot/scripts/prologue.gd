@@ -92,6 +92,7 @@ func _ready() -> void:
 		get_tree().change_scene_to_file.call_deferred(MAIN)
 		return
 	player.corruption = 1.0
+	Journal.paused = true
 	player.sheets["kneel"] = Actor.sheet_entry("res://art/characters/wanderer_hd/wanderer_hd_kneel.png", player.BODY, 1)
 	cutscene(true)
 	camera.position = camera_rest + DRIFT_FROM
@@ -159,11 +160,21 @@ func _process(dt: float) -> void:
 			if beat_age > LINE_TIME:
 				black = minf(1.0, black + dt / FADE_TIME)
 			if black >= 1.0:
+				write_pages()
 				start("card", ["Three winters later."])
 		"card":
 			if beat_age > LINE_TIME:
 				get_tree().change_scene_to_file(MAIN)
 	screen.queue_redraw()
+
+
+# His first pages, written at the Pull: the last field, then the name on the roll at the back.
+func write_pages() -> void:
+	Journal.paused = false
+	Journal.write("the_last_field")
+	Journal.write("the_name", "the_name", NAME)
+	Journal.name_soul(NAME)
+	Journal.corruption = -1.0
 
 
 func start(next: String, next_lines: Array) -> void:

@@ -8,7 +8,7 @@ Every stone belongs to one of three families, one per Quiet god (Hush, Mortmain,
 - **What decides the family** (round 41): the act the man was doing as he died: refusing his death (Grudge), clinging (Mortmain), or slipping away (Hush). It says which Quiet god wants the soul most.
 - **Mortmain still holds every forced stone** (rounds 36–37, restated round 41). The family is who is hungriest for the soul, not who holds it.
 - **The subtype is his strongest verb at death** (round 41), and the subtype is the root name. A man who refused by cutting gives Rend. Round 3 (type = root name) stands.
-- **Folk grades first** (round 41): stones show the gleaners' grades, **biter** (Grudge), **holder** (Mortmain) and **taker** (Hush), until the Wanderer learns the god behind a family; then the label turns to the god's name (like "Echo:" turning into the man's name). Design canon, not built.
+- **Folk grades first** (round 41): stones show the gleaners' grades, **biter** (Grudge), **holder** (Mortmain) and **taker** (Hush), until the Wanderer learns the god behind a family; then the label turns to the god's name (like "Echo:" turning into the man's name). Design canon, not built. Folk grades are built (seen in: godot/scripts/game/runes.gd uses RuneBook.FAMILIES grade only); the turn to the god is not. **Flagged (round 48):** the user's rule that the game shows no god names (see [The six rites](../Mechanics/the-six-rites.md)) would stop the label ever turning. Open.
 - **The mapping** (round 42, built in the Godot build; seen in: godot/scripts/game/rune_book.gd):
 
 | Family (god's act) | Folk grade | Subtypes (where lashed) |
@@ -25,7 +25,7 @@ Every stone belongs to one of three families, one per Quiet god (Hush, Mortmain,
 ## Open
 
 - **Fuller favour** (waiting on the user): a stone given to its own family's god gives fuller favour and eases the Pull more; corruption unchanged (it follows the act). Any dark rite still consumes any soul (round 19).
-- **Not built yet** (round 42): forced downsides by family; folk-grade labels.
+- **Not built yet** (round 42): forced downsides by family. Folk-grade labels are built (round 48 check).
 
 ### Loremaster proposals (round 41, not canon)
 

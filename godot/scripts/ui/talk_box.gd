@@ -1,7 +1,7 @@
 extends LineEdit
 
 # The line the Wanderer types a question into while speaking with a villager: a dark plate with a
-# gilt edge at the bottom of the screen. Enter asks, Esc leaves.
+# gilt edge at the bottom of the screen. Enter asks, Esc leaves. Also where he writes in his book's margin.
 const WIDTH := 420
 const FROM_BOTTOM := 64
 
@@ -9,7 +9,6 @@ const FROM_BOTTOM := 64
 func _ready() -> void:
 	visible = false
 	max_length = 200
-	placeholder_text = "Speak. Esc to leave."
 	add_theme_font_override("font", GothicText.BODY)
 	add_theme_font_size_override("font_size", GothicText.BODY_SIZE)
 	add_theme_color_override("font_color", Palette.color("bone-0"))
@@ -26,7 +25,8 @@ func _ready() -> void:
 	size = Vector2(WIDTH, 0)
 
 
-func open(screen: Vector2) -> void:
+func open(screen: Vector2, hint := "Speak. Esc to leave.") -> void:
+	placeholder_text = hint
 	position = Vector2(floorf((screen.x - WIDTH) / 2), screen.y - FROM_BOTTOM)
 	visible = true
 	clear()
