@@ -18,7 +18,7 @@ extends SceneTree
 #   kill                   finish off the nearest living enemy (to see its death and body)
 #   hurt:DAMAGE            hit the player from the right
 #   zoom:STEPS             zoom the camera in (positive) or out (negative) by whole steps
-#   tap:KEY                press and release a key: e i c b n tab escape space shift 1-5
+#   tap:KEY                press and release a key: e i c b n m tab escape space shift 1-5
 #   give:ITEM:COUNT        put items in the bag, e.g. give:rune_rend_3:1 give:shard:30
 #   lash:ITEM:PART:I       put a rune straight into a socket, e.g. lash:rune_break_2:blade:0
 #   lootable               stand just below the nearest lootable prop that still has loot
@@ -32,7 +32,7 @@ extends SceneTree
 const KEYS := {
 	"w": KEY_W, "a": KEY_A, "s": KEY_S, "d": KEY_D, "shift": KEY_SHIFT,
 	"up": KEY_UP, "down": KEY_DOWN, "left": KEY_LEFT, "right": KEY_RIGHT,
-	"e": KEY_E, "i": KEY_I, "c": KEY_C, "b": KEY_B, "n": KEY_N, "tab": KEY_TAB, "escape": KEY_ESCAPE, "space": KEY_SPACE,
+	"e": KEY_E, "i": KEY_I, "c": KEY_C, "b": KEY_B, "n": KEY_N, "m": KEY_M, "tab": KEY_TAB, "escape": KEY_ESCAPE, "space": KEY_SPACE,
 	"1": KEY_1, "2": KEY_2, "3": KEY_3, "4": KEY_4, "5": KEY_5,
 }
 

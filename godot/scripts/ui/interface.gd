@@ -3,7 +3,7 @@ extends CanvasLayer
 # Interaction and HUD (the tick in src/main.js, src/ui.js): E searches a lootable prop, opens the
 # talk box to question a villager (the dialogue model, see dialogue.gd), opens the barterer's stall, the smith or
 # a rite place (the ledger, the fire, the road shrine: rite_panel.gd); I or Tab opens the bag, C the rune sheet, B his book (N writes in
-# its margin); Esc closes. Story beats are written into the book (Journal). The HUD draws at native
+# its margin), M the map of the Wake; Esc closes. Story beats are written into the book (Journal). The HUD draws at native
 # pixels: the keepsake, gothic lettering and gilt titles.
 const TALK_RANGE := 56.0
 const BARTER_RANGE := 80.0
@@ -12,7 +12,7 @@ const MESSAGE_LIFE := 2.0
 const SHOUT_Y := 170.0
 const TITLE_LIFE := 3.0
 const ZONE_SETTLE := 0.6
-const CONTROLS := "WASD move  Click attack  Space dodge  1-5 speak a rune  E use  I bag  C runes  B book"
+const CONTROLS := "WASD move  Click attack  Space dodge  1-5 speak a rune  E use  I bag  C runes  B book  M map"
 const PANEL := preload("res://scripts/ui/inventory_panel.gd")
 const BARTER_PANEL := preload("res://scripts/ui/barter_panel.gd")
 const RITE_PANEL := preload("res://scripts/ui/rite_panel.gd")
@@ -33,6 +33,9 @@ var panel := PANEL.new()
 var barter_panel := BARTER_PANEL.new()
 var rite_panel := RITE_PANEL.new()
 var talk_box := TALK_BOX.new()
+var map_panel := MapPanel.new()
+# The chunk he last stood in, so the map is revealed and saved only when it changes.
+var last_chunk := Vector2i(-1, -1)
 var talking = null
 var writing := false
 # Trackpad scroll adds up here into whole steps of the book.
@@ -75,6 +78,9 @@ func _ready() -> void:
 	rite_panel.player = player
 	rite_panel.world = world
 	add_child(rite_panel)
+	map_panel.inventory = inventory
+	map_panel.player = player
+	add_child(map_panel)
 	player.said.connect(say)
 	talk_box.text_submitted.connect(submitted)
 	add_child(talk_box)
@@ -103,6 +109,7 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			KEY_I, KEY_TAB:
 				inventory.open = not inventory.open
+				map_panel.open = false
 				panel.page = ""
 				close_stalls()
 				get_viewport().set_input_as_handled()
@@ -115,8 +122,15 @@ func _input(event: InputEvent) -> void:
 					writing = true
 					talk_box.open(screen_size(), "Write in the margin. Enter to write, Esc to stop.")
 					get_viewport().set_input_as_handled()
+			KEY_M:
+				if WorldMap.active:
+					inventory.open = false
+					close_stalls()
+					map_panel.toggle()
+					get_viewport().set_input_as_handled()
 			KEY_ESCAPE:
 				inventory.open = false
+				map_panel.open = false
 				close_stalls()
 	elif inventory.open and event is InputEventMouseButton and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 		if event.pressed:
@@ -145,6 +159,7 @@ func open_page(page: String) -> void:
 	panel.page = "" if inventory.open and panel.page == page else page
 	panel.lines_back = 0
 	inventory.open = true
+	map_panel.open = false
 	close_stalls()
 
 
@@ -154,7 +169,7 @@ func close_stalls() -> void:
 
 
 func interact() -> void:
-	if player.dead > 0:
+	if player.dead > 0 or map_panel.open:
 		return
 	if barter or rite_panel.place:
 		close_stalls()
@@ -203,12 +218,22 @@ func now() -> float:
 	return Time.get_ticks_msec() / 1000.0
 
 
+func reveal() -> void:
+	var tile := Terrain.tile_of(player.position)
+	if not WorldMap.active or tile / Fog.CHUNK == last_chunk:
+		return
+	last_chunk = tile / Fog.CHUNK
+	if Fog.reveal(inventory.explored, tile):
+		inventory.save()
+
+
 func screen_size() -> Vector2:
 	return get_viewport().get_visible_rect().size
 
 
 func _process(dt: float) -> void:
 	village = world.village_at(player.position)
+	reveal()
 	if village:
 		player.respawn = village.centre + Villages.ARRIVAL
 	target = world.nearest_rite_place(player.position) if village else null
@@ -223,7 +248,7 @@ func _process(dt: float) -> void:
 	if talking and (not is_instance_valid(talking) or talking.position.distance_to(player.position) > TALK_RANGE * 2 or player.dead > 0):
 		stop_talking()
 	barter_panel.village = barter
-	player.ui_open = inventory.open or not barter.is_empty() or rite_panel.place != null or talking != null
+	player.ui_open = map_panel.open or inventory.open or not barter.is_empty() or rite_panel.place != null or talking != null
 	player.typing = talking != null or writing
 	if writing and not inventory.open:
 		stop_talking()
@@ -302,6 +327,8 @@ func on_hud(pos: Vector2) -> Vector2:
 func draw_hud() -> void:
 	var size := screen_size()
 	var feet := on_hud(player.position)
+	if map_panel.open:
+		return
 	GothicText.draw(hud, CONTROLS, Vector2(10, size.y - 22), "ash-3", GothicText.BODY, GothicText.SMALL_SIZE)
 	for v in village.get("villagers", []) + ([village.barterer, village.smith] if village else []):
 		if v.speech:

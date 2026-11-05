@@ -11,6 +11,9 @@ const REGIONS := SIZE / REGION
 const DEEP := 40
 const REGION_PATH := "res://world/regions/r_%d_%d.scn"
 const PLACES_PATH := "res://world/places.tscn"
+# The parchment map (tools/build_map.gd, map_panel.gd): one pixel per MAP_TILES x MAP_TILES tiles.
+const MAP_PATH := "res://world/map.png"
+const MAP_TILES := 2
 # Paint-layer value an empty cell stands for, by layer.
 const EMPTY := {"Terrain": DEEP, "Level": 0, "Ramp": 0}
 

@@ -15,6 +15,8 @@ func _initialize() -> void:
 func run() -> void:
 	check_biomes()
 	check_world_map()
+	check_map()
+	check_fog()
 	await check_collision()
 	print("world_check OK" if fails == 0 else "world_check FAILS %d" % fails)
 	quit(1 if fails else 0)
@@ -82,6 +84,40 @@ func check_world_map() -> void:
 		expect(map.walkable(bridge.x, bridge.y), "the bridge at %s is not walkable" % bridge)
 		var river := find_near(map, bridge, 6, func(x, y): return map.terrain(x, y) == RIVER and map.terrain(x + 1, y) == RIVER and map.terrain(x, y + 1) == RIVER and map.terrain(x + 1, y + 1) == RIVER)
 		expect(river != Vector2i(-1, -1) and not map.walkable(river.x, river.y), "the river beside the bridge is walkable or missing")
+
+
+# The parchment map (tools/build_map.gd): one pixel per 2 x 2 tiles, palette colours only.
+func check_map() -> void:
+	expect(ResourceLoader.exists(WorldMap.MAP_PATH), "no %s; run tools/build_map.gd" % WorldMap.MAP_PATH)
+	if not ResourceLoader.exists(WorldMap.MAP_PATH):
+		return
+	var image: Image = load(WorldMap.MAP_PATH).get_image()
+	expect(image.get_size() == Vector2i(WorldMap.SIZE, WorldMap.SIZE) / WorldMap.MAP_TILES, "map.png is %s" % image.get_size())
+	image.convert(Image.FORMAT_RGB8)
+	var palette: Node = preload("res://scripts/palette.gd").new()
+	var allowed := {}
+	for c in palette.colors.values():
+		allowed[c.to_rgba32() >> 8] = true
+	palette.free()
+	var data := image.get_data()
+	var stray := 0
+	for i in range(0, data.size(), 3):
+		if not allowed.has((data[i] << 16) | (data[i + 1] << 8) | data[i + 2]):
+			stray += 1
+	expect(stray == 0, "map.png has %d pixels off the palette" % stray)
+
+
+func check_fog() -> void:
+	var explored := Fog.blank()
+	var at := Vector2i(1000, 1000)
+	expect(not Fog.seen(explored, at), "a blank map has seen %s" % at)
+	expect(Fog.reveal(explored, at), "revealing new ground reports no change")
+	expect(not Fog.reveal(explored, at), "revealing it again reports a change")
+	expect(Fog.seen(explored, at) and Fog.seen(explored, at + Vector2i(Fog.CHUNK * Fog.RADIUS, 0)), "ground beside him is not revealed")
+	expect(not Fog.seen(explored, at + Vector2i(Fog.CHUNK * (Fog.RADIUS + 2), 0)), "ground far from him is revealed")
+	expect(Fog.unpack(Fog.pack(explored)) == explored, "explored ground changes through a save")
+	# Godot logs the corrupt buffer; the map must still come back blank.
+	expect(Fog.unpack("bm90IGEgc2F2ZQ==") == Fog.blank(), "a broken save doesn't give a blank map")
 
 
 func find_near(map: WorldMap, at: Vector2i, radius: int, test: Callable) -> Vector2i:

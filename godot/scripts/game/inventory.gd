@@ -15,6 +15,7 @@ var reading := {}
 var rites := {}
 # Levels the smith has hammered into his gear (Smith).
 var forged := {"strength": 0, "armor": 0}
+var explored := Fog.blank()
 var selected := -1
 var fusing := false
 var open := false
@@ -55,11 +56,13 @@ func load_saved() -> void:
 	var gear = saved.get("forged", {})
 	for stat in forged:
 		forged[stat] = clampi(int(gear.get(stat, 0)), 0, Smith.MAX[stat]) if gear is Dictionary else 0
+	var seen = saved.get("explored", "")
+	explored = Fog.unpack(seen) if seen is String else Fog.blank()
 
 
 func save() -> void:
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"slots": slots, "sockets": sockets, "reading": reading, "rites": rites, "forged": forged}))
+	file.store_string(JSON.stringify({"slots": slots, "sockets": sockets, "reading": reading, "rites": rites, "forged": forged, "explored": Fog.pack(explored)}))
 
 
 # Returns how many didn't fit.
