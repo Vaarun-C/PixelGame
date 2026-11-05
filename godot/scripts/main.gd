@@ -5,6 +5,11 @@ extends Node2D
 # is dead, and handles
 # zoom and fullscreen.
 const HOLLOW := preload("res://scenes/hollow.tscn")
+# Rarer Hollow bodies by biome: [scene, chance a spawn there is one].
+const RARE := {
+	"battlefield": [[preload("res://scenes/misborn.tscn"), 1.0 / 12], [preload("res://scenes/stammerer.tscn"), 0.08]],
+	"ruins": [[preload("res://scenes/stammerer.tscn"), 0.15]],
+}
 const SPAWN_MIN := 600.0
 const SPAWN_MAX := 920.0
 const SPAWN_EVERY := 0.35
@@ -97,8 +102,13 @@ func _physics_process(dt: float) -> void:
 		return
 	timer = SPAWN_EVERY
 	var at := player.position + Vector2.from_angle(randf() * TAU) * randf_range(SPAWN_MIN, SPAWN_MAX)
-	if Terrain.blocked(at) or Terrain.in_village_grounds(at):
+	if Terrain.blocked(at) or Terrain.in_village_grounds(at) or not Terrain.reachable(at, player.position):
 		return
-	var hollow := HOLLOW.instantiate()
+	var scene: PackedScene = HOLLOW
+	for rare in RARE.get(Terrain.biome_at(at).id, []):
+		if randf() < rare[1]:
+			scene = rare[0]
+			break
+	var hollow := scene.instantiate()
 	hollow.position = at
 	add_child(hollow)

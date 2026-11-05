@@ -107,6 +107,97 @@ const LIST := [
 		"spawns": [{}, {}, {}, {}],
 		"decals": [{"pebbles": 0.3, "straw": 0.3, "twigs": 0.1}, {"grass_tuft": 1.8}, {"straw": 0.8}, {}],
 	},
+	# The fixed world's biomes (tools/world_design/export.py). Not in the noise world's mix (WILD).
+	# solid: nobody walks there (world.gd builds collision); water and road have no name so crossing
+	# them keeps the zone title.
+	{
+		"id": "fallow",
+		"name": "Fallow Fields",
+		"loot": {},
+		"grounds": [{"dust": ["leather-2", "leather-3"]}, {"dust": ["rot-2", "rot-3"]}, {"dust": ["leather-1", "leather-2"]}, {"dust": ["leather-1", "ash-1"]}],
+		"spawns": [
+			{"tree": 0.03, "stump": 0.01, "rocks": 0.01, "remains": 0.004, "crate": 0.002},
+			{"tree": 0.05, "stump": 0.015, "rocks": 0.01},
+			{"rocks": 0.005, "cart": 0.004, "remains": 0.004},
+			{"rocks": 0.02, "boulder": 0.02, "body": 0.004},
+		],
+		"decals": [
+			{"dry_tuft": 1.2, "pebbles": 0.2, "twigs": 0.1},
+			{"grass_tuft": 1.6, "dry_tuft": 0.3},
+			{"dry_tuft": 0.4, "straw": 0.3},
+			{"pebbles": 0.5, "twigs": 0.2},
+		],
+	},
+	{
+		"id": "woods",
+		"name": "Dead Woods",
+		"loot": {},
+		"grounds": [{"dust": ["leather-1", "rot-1"]}, {"dust": ["rot-1", "rot-2"]}, {"dust": ["leather-1", "leather-2"]}, {"solid": true, "dust": ["void-3", "rot-0"]}],
+		"spawns": [
+			{"tree": 0.3, "stump": 0.03, "remains": 0.004, "body": 0.003},
+			{"tree": 0.36, "stump": 0.02, "rocks": 0.01},
+			{"tree": 0.26, "stump": 0.05},
+			{"tree": 0.6, "stump": 0.1},
+		],
+		"decals": [
+			{"twigs": 0.8, "moss": 0.2, "mushrooms": 0.05},
+			{"moss": 0.8, "grass_tuft": 0.4, "mushrooms": 0.1},
+			{"twigs": 0.5, "pebbles": 0.2},
+			{"twigs": 0.6},
+		],
+	},
+	{
+		"id": "mountain",
+		"name": "The White Teeth",
+		"loot": {"metals": [50, 42, 8]},
+		"grounds": [{"speed": 0.85, "dust": ["ash-1", "ash-2"]}, {"speed": 0.8, "dust": ["steel-2", "ash-2"]}, {"dust": ["ash-1", "ash-2"]}, {"solid": true, "dust": ["ash-0", "ash-1"]}],
+		"spawns": [
+			{"boulder": 0.06, "rocks": 0.04, "cairn": 0.01},
+			{"rocks": 0.02, "ice_spike": 0.01, "cairn": 0.008},
+			{"boulder": 0.08, "rocks": 0.04},
+			{"boulder": 0.1},
+		],
+		"decals": [
+			{"pebbles": 0.8},
+			{"frost_pebbles": 0.5, "frost_tuft": 0.1},
+			{"pebbles": 0.4},
+			{},
+		],
+	},
+	{
+		"id": "cinder",
+		"name": "Cinder Peak",
+		"loot": {"runeType": "rend", "shardBonus": 1.5},
+		"grounds": [{"dust": ["ash-0", "ash-1"]}, {"dust": ["ash-1", "ash-2"]}, {"dust": ["ember-0", "ash-1"]}, {"dust": ["void-3", "ash-0"]}],
+		"spawns": [
+			{"charred_stump": 0.03, "rocks": 0.02, "embers": 0.01},
+			{"charred_stump": 0.02, "rocks": 0.01},
+			{"embers": 0.05, "rocks": 0.01},
+			{"boulder": 0.06, "rocks": 0.03},
+		],
+		"decals": [
+			{"pebbles": 0.4, "embers": 0.05},
+			{"ash_pile": 0.4, "burnt_tuft": 0.2},
+			{"embers": 0.4},
+			{"pebbles": 0.3},
+		],
+	},
+	{
+		"id": "water",
+		"name": "",
+		"loot": {},
+		"grounds": [{"solid": true, "dust": ["steel-1", "steel-2"]}, {"solid": true, "dust": ["steel-1", "steel-2"]}, {"speed": 0.6, "dust": ["steel-1", "steel-2"]}, {"speed": 0.6, "dust": ["steel-1", "steel-2"]}],
+		"spawns": [{}, {}, {"reeds": 0.03}, {"reeds": 0.02}],
+		"decals": [{}, {}, {"reed_sprig": 0.3}, {"pebbles": 0.2}],
+	},
+	{
+		"id": "road",
+		"name": "",
+		"loot": {},
+		"grounds": [{"dust": ["leather-2", "leather-3"]}, {"dust": ["ash-1", "ash-2"]}, {"dust": ["ash-1", "ash-2"]}, {"dust": ["leather-2", "leather-3"]}],
+		"spawns": [{}, {}, {}, {}],
+		"decals": [{"pebbles": 0.3}, {"moss": 0.1}, {"pebbles": 0.4}, {}],
+	},
 ]
 const WILD := 5
 const VILLAGE := 5

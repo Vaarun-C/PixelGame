@@ -10,6 +10,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 API = "https://api.pixellab.ai/v2"
@@ -98,6 +99,16 @@ def animate(src, out_dir, action, frames, seed=0, last=None):
     return result
 
 
+def animate_segments(out_dir, segments, seed, names=None):
+    """Animate named segments {name: (first, last, frame_count, action)} into <out_dir>/<name>_<seed>/,
+    two at a time (PixelLab refuses more concurrent jobs)."""
+    def run(name):
+        first, last, frames, action = segments[name]
+        animate(first, Path(out_dir) / f"{name}_{seed}", action, frames, seed=seed, last=last)
+    with ThreadPoolExecutor(2) as pool:
+        list(pool.map(run, names or list(segments)))
+
+
 def tiles(out_dir, description, size, **options):
     """Independent square top-down tile variations; number them in the description: '1). mud 2). grass'."""
     job = post("create-tiles-pro", {"description": description, "tile_type": "square_topdown",
@@ -106,8 +117,29 @@ def tiles(out_dir, description, size, **options):
     result = get(f"tiles-pro/{job['tile_id']}")
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     for name, url in sorted(result["storage_urls"].items()):
-        with urllib.request.urlopen(url, timeout=60) as res:
-            (Path(out_dir) / f"{name}.png").write_bytes(res.read())
+        (Path(out_dir) / f"{name}.png").write_bytes(download(url))
+    return result
+
+
+def download(url):
+    # The file host refuses urllib's default User-Agent.
+    req = urllib.request.Request(url, headers={"User-Agent": "PixelGame-tools/1.0"})
+    with urllib.request.urlopen(req, timeout=60) as res:
+        return res.read()
+
+
+def tileset(out_dir, lower, upper, **options):
+    """A top-down corner (Wang) tileset between two terrains: each tile saved as <index>_<corner name>.png,
+    and the tile list without image data in tileset.json (corners say which are lower or upper)."""
+    job = post("create-tileset", {"lower_description": lower, "upper_description": upper, **options})
+    wait_for(job["background_job_id"])
+    result = get(f"tilesets/{job['tileset_id']}")
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    tiles = result["tileset"]["tiles"]
+    for i, tile in enumerate(tiles):
+        image = tile.pop("image")
+        (Path(out_dir) / f"{i:02d}_{tile['name']}.png").write_bytes(base64.b64decode(image["base64"].split(",")[-1]))
+    (Path(out_dir) / "tileset.json").write_text(json.dumps(result, indent=1))
     return result
 
 

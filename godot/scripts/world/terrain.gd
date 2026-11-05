@@ -22,6 +22,9 @@ const DECAL_TRIES := 3
 const FEET := [-5, -3, 10, 4]
 const CACHE_LIMIT := 50000
 
+# The fixed map's seed: decals, loot and baked props come out the same every run.
+const FIXED_SEED := 23
+
 static var world_seed := 0
 # A wild biome index to fill the whole world with, or -1 for the normal mix.
 static var only_biome := -1
@@ -67,13 +70,19 @@ static func terrain_at(vx: int, vy: int) -> int:
 		return cache[key]
 	var s := world_seed
 	var margin := 0.5 + WorldNoise.value_noise(s + 30, vx / 2.0, vy / 2.0)
-	var biome := Biomes.VILLAGE if Villages.near(s, vx, vy, margin) else wild_biome_at(vx, vy)
 	var n := WorldNoise.value_noise(s + 2, vx / 7.0, vy / 7.0) * 0.7 + WorldNoise.value_noise(s + 3, vx / 3.0, vy / 3.0) * 0.3
 	var ground := 3 if WorldNoise.value_noise(s + 1, vx / 4.0, vy / 4.0) > 0.86 else 2 if n > 0.6 else 1 if n < 0.38 else 0
+	var id: int
+	if Villages.near(s, vx, vy, margin):
+		id = Biomes.VILLAGE * GROUNDS + ground
+	elif WorldMap.active:
+		id = WorldMap.active.terrain(vx, vy)
+	else:
+		id = wild_biome_at(vx, vy) * GROUNDS + ground
 	if cache.size() > CACHE_LIMIT:
 		cache.clear()
-	cache[key] = biome * GROUNDS + ground
-	return cache[key]
+	cache[key] = id
+	return id
 
 
 static func nearest_corner(pos: Vector2) -> int:
@@ -91,14 +100,18 @@ static func biome_at(pos: Vector2) -> Dictionary:
 	return Biomes.LIST[nearest_corner(pos) / GROUNDS]
 
 
-# The prop on a tile: {kind, variant, pos}, or {}.
+# The prop on a tile: {kind, variant, pos}, or {}. On the fixed map, the one baked into its region.
 static func prop_at(tx: int, ty: int) -> Dictionary:
-	var s := world_seed
-	var village := Villages.near(s, tx, ty)
+	var village := Villages.near(world_seed, tx, ty)
 	if village:
 		var placed := Villages.prop(village, tx - village.tx, ty - village.ty)
 		return placed_prop(placed[0], placed[1], tx * TILE + 16, ty * TILE + 28) if placed else {}
+	return WorldMap.active.prop(tx, ty) if WorldMap.active else roll_prop(tx, ty)
 
+
+# The procedural prop on a wild tile, from its biome's spawn odds (the noise world, and the map baker).
+static func roll_prop(tx: int, ty: int) -> Dictionary:
+	var s := world_seed
 	var id := terrain_at(tx, ty)
 	var density := prop_density(tx, ty)
 	if density <= 0:
@@ -166,6 +179,8 @@ static func tile_of(pos: Vector2) -> Vector2i:
 static func blocked(pos: Vector2) -> bool:
 	var feet := Rect2(pos / SCALE + Vector2(FEET[0], FEET[1]), Vector2(FEET[2], FEET[3]))
 	var tile := tile_of(pos)
+	if WorldMap.active and not WorldMap.active.walkable(tile.x, tile.y):
+		return true
 	for ty in range(tile.y - 2, tile.y + 3):
 		for tx in range(tile.x - 2, tile.x + 3):
 			var prop := prop_at(tx, ty)
@@ -173,6 +188,15 @@ static func blocked(pos: Vector2) -> bool:
 			if box and feet.intersects(Rect2(prop.pos / SCALE + Vector2(box[0], box[1]), Vector2(box[2], box[3]))):
 				return true
 	return false
+
+
+# Whether b can be walked to from a on the fixed map (always true in the noise world). Searches at
+# most REACH_LIMIT tiles, so spots far round a river or a cliff count as out of reach.
+const REACH_LIMIT := 1500
+
+
+static func reachable(a: Vector2, b: Vector2) -> bool:
+	return not WorldMap.active or WorldMap.active.reachable(tile_of(a), tile_of(b), REACH_LIMIT)
 
 
 # Village grounds, walls included: enemies never spawn or walk here.
@@ -187,6 +211,5 @@ static func village_at(pos: Vector2) -> Dictionary:
 	var village := Villages.near(world_seed, tile.x, tile.y)
 	if village.is_empty():
 		return {}
-	var p := pos / SCALE
-	var inside := Villages.reach(p.x - (village.tx * TILE + 16), p.y - (village.ty * TILE + 16)) < (Villages.RADIUS - 0.5) * TILE
-	return village if inside else {}
+	var p := (pos / SCALE - Vector2(village.tx * TILE + 16, village.ty * TILE + 16)) / TILE
+	return village if Villages.inside(village, p.x, p.y, -1.0) else {}

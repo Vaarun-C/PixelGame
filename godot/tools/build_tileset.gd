@@ -1,6 +1,6 @@
 extends SceneTree
 
-# Builds tiles/ground.tres from the biome HD ground sheets (tools/gen_ground_hd.py): one atlas source per biome (source id =
+# Builds tiles/ground.tres (and tiles/cliffs.tres, see cliff_set) from the biome HD ground sheets (tools/gen_ground_hd.py): one atlas source per biome (source id =
 # index in Biomes.LIST), one row per ground, columns = corner masks (see world.gd paint_tile).
 # Each sheet holds FRAMES copies of its COLUMNS side by side; rows whose frames differ (water, embers) animate.
 # Run: godot --headless --script tools/build_tileset.gd
@@ -31,7 +31,28 @@ func _initialize() -> void:
 						source.set_tile_animation_frame_duration(coords, f, FRAME_SECONDS)
 		tile_set.add_source(source, i)
 	print(ResourceSaver.save(tile_set, "res://tiles/ground.tres"))
+	print(ResourceSaver.save(cliff_set(), "res://tiles/cliffs.tres"))
 	quit()
+
+
+# The fixed world's level edges (art/drafts/terrain/assemble.py): one atlas per biome that has
+# cliffs, source id = its index in Biomes.LIST. Row 0: the 25 tall-wall tiles in
+# art/tiles/cliffs/tall_patterns.json order; row 1: the 16 ramp tiles by corner mask.
+func cliff_set() -> TileSet:
+	var tile_set := TileSet.new()
+	tile_set.tile_size = Vector2i(SIZE, SIZE)
+	for i in Biomes.LIST.size():
+		var path := "res://art/tiles/cliffs/%s_cliffs_hd.png" % Biomes.LIST[i].id
+		if not ResourceLoader.exists(path):
+			continue
+		var source := TileSetAtlasSource.new()
+		source.texture = load(path)
+		source.texture_region_size = Vector2i(SIZE, SIZE)
+		for y in source.get_atlas_grid_size().y:
+			for x in source.get_atlas_grid_size().x:
+				source.create_tile(Vector2i(x, y))
+		tile_set.add_source(source, i)
+	return tile_set
 
 
 # A row's full tiles (cols 15-18) in one frame. Overlay columns are left out: the importer recolours

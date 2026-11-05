@@ -5,6 +5,7 @@ extends Node2D
 # lowest id first, the rest as corner masks over it), ground decals, and props and villages as
 # y-sorted nodes.
 const GROUND := preload("res://tiles/ground.tres")
+const CLIFFS := preload("res://tiles/cliffs.tres")
 const VILLAGER := preload("res://scenes/villager.tscn")
 const DECAL_LAYER := preload("res://scripts/world/decal_layer.gd")
 const LAYERS := 4
@@ -16,6 +17,9 @@ const CHUNKS_PER_FRAME := 2
 # Chunks this close always load at once, so the view (under 1 chunk to each side) never shows a hole.
 const VISIBLE_RADIUS := 1
 const VILLAGE_GROUNDS_LAYER := 2
+# The Hollow barrier traces the village outline with this many points, this many tiles outside it.
+const GROUNDS_POINTS := 36
+const GROUNDS_MARGIN := 1.5
 # How close the feet must be to a lootable prop's box to search it (Godot px).
 const LOOT_RANGE := 20.0
 
@@ -24,11 +28,15 @@ const LOOT_RANGE := 20.0
 @export var with_villages := true
 
 var layers: Array[TileMapLayer] = []
+# The fixed map's tall walls, over the ground.
+var cliff_layer := TileMapLayer.new()
 var chunks := {}
 # Loaded villages by key: {name, seed, centre, villagers, barterer, chunk}.
 var villages := {}
 # What is left in each searched prop, by prop key; unsearched props aren't here yet.
 var loot := {}
+# Road shrines whose niche is grated shut, by prop key.
+var grated := {}
 
 @onready var player: Node2D = get_tree().get_first_node_in_group("player")
 
@@ -36,13 +44,18 @@ var loot := {}
 func _ready() -> void:
 	add_to_group("world")
 	Villages.enabled = with_villages
-	Terrain.reset(randi(), biome - 1)
+	# "All" plays the fixed map; a single biome (the prologue, --biome playtests) the noise world.
+	WorldMap.active = WorldMap.from_scenes() if biome == 0 else null
+	Terrain.reset(Terrain.FIXED_SEED if WorldMap.active else randi(), biome - 1)
 	for i in LAYERS:
 		var layer := TileMapLayer.new()
 		layer.tile_set = GROUND
 		layer.z_index = -10 + i
 		add_child(layer)
 		layers.append(layer)
+	cliff_layer.tile_set = CLIFFS
+	cliff_layer.z_index = -10 + LAYERS
+	add_child(cliff_layer)
 	_process(0)
 
 
@@ -99,12 +112,36 @@ func load_chunk(chunk: Vector2i) -> void:
 		if village and village.tx == tile.x and village.ty == tile.y:
 			add_village(holder, village, chunk)
 	holder.add_child(DECAL_LAYER.new(decals))
+	if WorldMap.active:
+		add_map_edges(holder, chunk)
+
+
+# Wall tiles over the ground, and one static body holding a box for every tile nobody can walk on
+# (water, thicket, crag, cliffs and wall faces).
+func add_map_edges(holder: Node2D, chunk: Vector2i) -> void:
+	var body := StaticBody2D.new()
+	var size := Vector2.ONE * Terrain.TILE * Terrain.SCALE
+	for tile in chunk_tiles(chunk):
+		var wall := Cliffs.tile_for(WorldMap.active, tile.x, tile.y)
+		if wall:
+			cliff_layer.set_cell(tile, wall[0], wall[1])
+		if not WorldMap.active.walkable(tile.x, tile.y):
+			var shape := CollisionShape2D.new()
+			shape.shape = RectangleShape2D.new()
+			shape.shape.size = size
+			shape.position = (Vector2(tile) + Vector2(0.5, 0.5)) * size
+			body.add_child(shape)
+	if body.get_child_count():
+		holder.add_child(body)
+	else:
+		body.free()
 
 
 func unload_chunk(chunk: Vector2i) -> void:
 	for tile in chunk_tiles(chunk):
 		for layer in layers:
 			layer.erase_cell(tile)
+		cliff_layer.erase_cell(tile)
 	chunks[chunk].queue_free()
 	chunks.erase(chunk)
 	for key in villages.keys():
@@ -114,23 +151,38 @@ func unload_chunk(chunk: Vector2i) -> void:
 
 # key: names the prop in `loot`, so a searched prop stays spent when its chunk loads again.
 func add_prop(parent: Node, kind: String, variant: int, at: Vector2, key: String) -> Prop:
-	var prop := Prop.create(kind, variant, at)
+	var prop := Prop.create(kind, 1 if grated.has(key) else variant, at)
 	prop.key = key
 	prop.spent = not has_loot(prop)
 	parent.add_child(prop)
 	return prop
 
 
+# Mortmain's rite shuts the shrine's niche for good: the grated variant from then on.
+func grate(prop: Prop) -> void:
+	grated[prop.key] = true
+	prop.variant = 1
+	prop.sprite.frame = 1
+
+
 func has_loot(prop: Prop) -> bool:
 	return prop.def.has("loot") and loot.get(prop.key, [null]).size() > 0
 
 
-# The lootable prop whose box (solid, or its loot area) is nearest the feet, within reach; or null.
 func nearest_lootable(feet: Vector2) -> Prop:
+	return nearest_in("lootables", feet, has_loot)
+
+
+func nearest_rite_place(feet: Vector2) -> Prop:
+	return nearest_in("rite_places", feet, func(_prop): return true)
+
+
+# The usable prop of a group whose box (solid, or its area) is nearest the feet, within reach; or null.
+func nearest_in(group: String, feet: Vector2, usable: Callable) -> Prop:
 	var best: Prop = null
 	var best_distance := LOOT_RANGE
-	for prop in get_tree().get_nodes_in_group("lootables"):
-		if not has_loot(prop):
+	for prop in get_tree().get_nodes_in_group(group):
+		if not usable.call(prop):
 			continue
 		var box: Array = Props.solid_box(prop.def_kind, prop.variant)
 		if box.is_empty():
@@ -190,26 +242,31 @@ func paint_tile(tile: Vector2i) -> void:
 		layers[i].set_cell(tile, ids[i] / Terrain.GROUNDS, Vector2i(column, ids[i] % Terrain.GROUNDS))
 
 
-# Villagers, the barterer and an invisible wall around the grounds that only Hollows bump into
+# Villagers, the barterer, the smith and an invisible wall around the grounds that only Hollows bump into
 # (createVillage in src/village.js, inVillageGrounds in src/world.js).
 func add_village(holder: Node2D, village: Dictionary, chunk: Vector2i) -> void:
 	var centre := Vector2(village.tx * Terrain.TILE + 16, village.ty * Terrain.TILE + 16)
 	var h := WorldNoise.hash32([Terrain.world_seed, village.tx, village.ty, 33])
 	var villagers := []
-	for i in 2 + h % 3:
+	for person in Villages.people(village):
 		var villager := VILLAGER.instantiate()
-		villager.role = Villages.ROLES[i]
-		villager.wait = 1.0 + i
-		villager.position = (centre + Vector2((i - 1) * 24, 40)) * Terrain.SCALE
+		villager.role = person[0]
+		villager.wait = 1.0 + villagers.size()
+		villager.position = (centre + Vector2(person[1]) * Terrain.TILE) * Terrain.SCALE
 		holder.add_child(villager)
 		villagers.append(villager)
 	var barterer := VILLAGER.instantiate()
 	barterer.role = "barterer"
 	barterer.position = (centre + Vector2(Villages.STALL) * Terrain.TILE - Vector2(0, 2)) * Terrain.SCALE
 	holder.add_child(barterer)
-	var name: String = Villages.NAME_START[h % Villages.NAME_START.size()] + Villages.NAME_END[(h >> 8) % Villages.NAME_END.size()]
-	for i in villagers.size() + 1:
-		var person: Node = barterer if i == villagers.size() else villagers[i]
+	var smith := VILLAGER.instantiate()
+	smith.role = "smith"
+	smith.position = (centre + Vector2(Villages.SMITHY) * Terrain.TILE) * Terrain.SCALE
+	holder.add_child(smith)
+	var keepers := [barterer, smith]
+	var name: String = village.get("name", Villages.NAME_START[h % Villages.NAME_START.size()] + Villages.NAME_END[(h >> 8) % Villages.NAME_END.size()])
+	for i in villagers.size() + keepers.size():
+		var person: Node = villagers[i] if i < villagers.size() else keepers[i - villagers.size()]
 		person.persona_seed = WorldNoise.hash32([h, i, 34])
 		person.villager_name = Villages.villager_name(person.persona_seed)
 		person.village_name = name
@@ -217,11 +274,19 @@ func add_village(holder: Node2D, village: Dictionary, chunk: Vector2i) -> void:
 	Dialogue.warm()
 	villages[village.key] = {
 		"name": name,
-		"seed": h, "centre": centre * Terrain.SCALE, "villagers": villagers, "barterer": barterer, "chunk": chunk,
+		"seed": h, "centre": centre * Terrain.SCALE, "villagers": villagers, "barterer": barterer, "smith": smith, "chunk": chunk,
 	}
 
-	var span := (Villages.RADIUS + 1) * 2 + 1
-	var grounds := Prop.collision_body([-(Villages.RADIUS + 1) * Terrain.TILE, -(Villages.RADIUS + 1) * Terrain.TILE, span * Terrain.TILE, span * Terrain.TILE])
+	# The outline pushed out past the wall, filled, on a layer only Hollows collide with.
+	var outline := Villages.shape(village)
+	var ring := PackedVector2Array()
+	for i in GROUNDS_POINTS:
+		var angle := TAU * i / GROUNDS_POINTS
+		ring.append(Vector2.from_angle(angle) * (Villages.radius_at(outline, angle) + GROUNDS_MARGIN) * Terrain.TILE * Terrain.SCALE)
+	var polygon := CollisionPolygon2D.new()
+	polygon.polygon = ring
+	var grounds := StaticBody2D.new()
+	grounds.add_child(polygon)
 	grounds.collision_layer = 1 << (VILLAGE_GROUNDS_LAYER - 1)
-	grounds.position = Vector2(village.tx, village.ty) * Terrain.TILE * Terrain.SCALE
+	grounds.position = centre * Terrain.SCALE
 	holder.add_child(grounds)

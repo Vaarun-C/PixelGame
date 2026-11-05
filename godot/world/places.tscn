@@ -1,0 +1,145 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/place_marker.gd" id="1_dmqcq"]
+
+[node name="Places" type="Node2D" unique_id=1868670488]
+
+[node name="Greywell" type="Node2D" parent="." unique_id=1010429881]
+position = Vector2(46752, 63648)
+script = ExtResource("1_dmqcq")
+place_name = "Greywell"
+start = true
+
+[node name="Ravengate" type="Node2D" parent="." unique_id=533025054]
+position = Vector2(81568, 44192)
+script = ExtResource("1_dmqcq")
+place_name = "Ravengate"
+
+[node name="Blackford" type="Node2D" parent="." unique_id=980411658]
+position = Vector2(82592, 67232)
+script = ExtResource("1_dmqcq")
+place_name = "Blackford"
+
+[node name="Ashbarrow" type="Node2D" parent="." unique_id=1779353267]
+position = Vector2(103072, 56736)
+script = ExtResource("1_dmqcq")
+place_name = "Ashbarrow"
+
+[node name="Thornstead" type="Node2D" parent="." unique_id=1430253432]
+position = Vector2(31904, 95392)
+script = ExtResource("1_dmqcq")
+place_name = "Thornstead"
+
+[node name="Paymaster" type="Node2D" parent="." unique_id=2108757339]
+position = Vector2(85152, 51360)
+script = ExtResource("1_dmqcq")
+kind = "prisoner"
+place_name = "Paymaster"
+
+[node name="Ford-holder" type="Node2D" parent="." unique_id=849636858]
+position = Vector2(43424, 81952)
+script = ExtResource("1_dmqcq")
+kind = "prisoner"
+place_name = "Ford-holder"
+
+[node name="Coal-master" type="Node2D" parent="." unique_id=1805653719]
+position = Vector2(102048, 82592)
+script = ExtResource("1_dmqcq")
+kind = "prisoner"
+place_name = "Coal-master"
+
+[node name="Pass_warden" type="Node2D" parent="." unique_id=1704323624]
+position = Vector2(78432, 10976)
+script = ExtResource("1_dmqcq")
+kind = "prisoner"
+place_name = "Pass warden"
+
+[node name="King\'s_champion" type="Node2D" parent="." unique_id=1841117460]
+position = Vector2(26784, 58016)
+script = ExtResource("1_dmqcq")
+kind = "prisoner"
+place_name = "King's champion"
+
+[node name="Court_keeper" type="Node2D" parent="." unique_id=2053510120]
+position = Vector2(38560, 24736)
+script = ExtResource("1_dmqcq")
+kind = "prisoner"
+place_name = "Court keeper"
+
+[node name="Court_Chapel" type="Node2D" parent="." unique_id=290479373]
+position = Vector2(26784, 58016)
+script = ExtResource("1_dmqcq")
+kind = "chapel"
+place_name = "Court Chapel"
+
+[node name="Mere_Chapel" type="Node2D" parent="." unique_id=1995855385]
+position = Vector2(53408, 31904)
+script = ExtResource("1_dmqcq")
+kind = "chapel"
+place_name = "Mere Chapel"
+
+[node name="First_keeper\'s_chapel" type="Node2D" parent="." unique_id=1951116628]
+position = Vector2(75808, 21920)
+script = ExtResource("1_dmqcq")
+kind = "chapel"
+place_name = "First keeper's chapel"
+
+[node name="Shrine_1" type="Node2D" parent="." unique_id=244014366]
+position = Vector2(39840, 69024)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 1"
+
+[node name="Shrine_2" type="Node2D" parent="." unique_id=361043098]
+position = Vector2(36768, 73632)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 2"
+
+[node name="Shrine_3" type="Node2D" parent="." unique_id=46499565]
+position = Vector2(83104, 42144)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 3"
+
+[node name="Shrine_4" type="Node2D" parent="." unique_id=138658191]
+position = Vector2(80288, 19872)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 4"
+
+[node name="Shrine_5" type="Node2D" parent="." unique_id=1915888579]
+position = Vector2(105376, 54432)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 5"
+
+[node name="Shrine_6" type="Node2D" parent="." unique_id=645632207]
+position = Vector2(97440, 74656)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 6"
+
+[node name="Shrine_7" type="Node2D" parent="." unique_id=1964060047]
+position = Vector2(104608, 97184)
+script = ExtResource("1_dmqcq")
+kind = "shrine"
+place_name = "Shrine 7"
+
+[node name="Crossroads" type="Node2D" parent="." unique_id=470768456]
+position = Vector2(67744, 51616)
+script = ExtResource("1_dmqcq")
+kind = "crossroads"
+place_name = "Crossroads"
+
+[node name="Mother_House" type="Node2D" parent="." unique_id=1986080165]
+position = Vector2(38560, 24736)
+script = ExtResource("1_dmqcq")
+kind = "mother_house"
+place_name = "Mother House"
+
+[node name="Prologue_field" type="Node2D" parent="." unique_id=2058113265]
+position = Vector2(55456, 54944)
+script = ExtResource("1_dmqcq")
+kind = "prologue"
+place_name = "Prologue field"

@@ -18,3 +18,10 @@ dialogue/data/light.jsonl
 dialogue/data/mix/
 dialogue/adapters/
 dialogue/model/
+
+# Fixed-map export (tools/world_design/export.py), rebuilt on demand
+tools/world_design/out/
+__pycache__/
+
+# Plan execution scratch (ledger, review packages)
+.superpowers/

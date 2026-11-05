@@ -42,11 +42,13 @@ Add Python dependencies to `requirements.txt` and always run tools with `.venv/b
 python3 -m http.server 8137 --bind 127.0.0.1   # then open http://127.0.0.1:8137 (8000 is taken)
 ```
 
-Browser game in plain JavaScript (ES modules) on a canvas. No build step and no JS dependencies. Controls: WASD/arrows to move, Shift to run, left click to swing (toward the mouse; click again mid-swing to chain the 4-hit combo), Space to dodge, E to search / talk / barter, I/Tab for inventory (click a rune, then a socket to set it; click a socketed rune to take it out; Carve and Fuse spend shards), click to trade (Shift-click x10), Esc to close. The world is procedural with a new seed each load (biomes as large regions, villages rare); the inventory persists in localStorage.
+Browser game in plain JavaScript (ES modules) on a canvas. No build step and no JS dependencies. Controls: WASD/arrows to move, Shift to run, left click to swing (toward the mouse; click again mid-swing to chain the 4-hit combo), Space to dodge, E to search / talk / barter, I/Tab for inventory (click a rune, then a socket to set it; click a socketed rune to take it out; Carve and Fuse spend shards), click to trade (Shift-click x10), Esc to close. The world is procedural with a new seed each load (biomes as large regions, villages rare); the inventory persists in localStorage. The Godot build plays one fixed, hand-editable map instead (see below); its prologue and `--biome` playtests still use the procedural world.
+
+Godot fixed world (the Wake, 2000 x 2000 tiles): the design lives in `tools/world_design/` (`export.py` writes the tile-resolution layers to `out/`, `check_export.py` checks them). `godot --headless --path godot -s tools/build_world.gd -- <abs path to tools/world_design/out>` bakes them once into `godot/world/regions/r_<x>_<y>.scn` (paint layers Terrain, Level, Ramp and every prop as a PropMarker) and `godot/world/places.tscn` (villages, shrines, chapels, prisoners); after that the scenes are the source of truth and rebaking overwrites hand edits. Edit them in the Godot editor with *Editor Settings → FileSystem → On Save → Compress Binary Resources* on. Ground and cliff art for the map: `art/drafts/terrain/generate.py` (PixelLab) then `assemble.py`, then `godot --headless --path godot --script tools/build_tileset.gd`. Check with `godot --headless --path godot -s tools/world_check.gd`.
 
 Regenerate placeholder art: `.venv/bin/python tools/gen_placeholder_<character|terrain|props|items>.py`
 
-Rebuild the HD sheets from the chosen PixelLab drafts: `.venv/bin/python art/drafts/wanderer/assemble.py` (player), `.venv/bin/python art/drafts/hollow/assemble.py` (Hollow) and `.venv/bin/python art/drafts/villagers/assemble.py` (villagers); battlefield props (`*_hd` sheets in art/props): `art/drafts/props/fix_stuck.py`, `combine_tree.py`, then `assemble.py`; the prologue's dead man, kneel and cutscene close-ups: `art/drafts/prologue/assemble.py` (drafts from `generate.py`; copy `art/props/dead_man_hd.png`, `art/cutscenes/*.png` and `wanderer_hd_kneel.png` into the same paths under `godot/art/`)
+Rebuild the HD sheets from the chosen PixelLab drafts: `.venv/bin/python art/drafts/wanderer/assemble.py` (player), `.venv/bin/python art/drafts/hollow/assemble.py` (Hollow) and `.venv/bin/python art/drafts/villagers/assemble.py` (villagers); battlefield props (`*_hd` sheets in art/props): `art/drafts/props/fix_stuck.py`, `combine_tree.py`, then `assemble.py`; spell casts (Wanderer cast sheets in art/characters/wanderer_hd, effects in art/vfx, and the review strips): `art/drafts/spells/build.py --game` (poses and in-betweens from `generate.py`); the prologue's dead man, kneel and cutscene close-ups: `art/drafts/prologue/assemble.py` (drafts from `generate.py`; copy `art/props/dead_man_hd.png`, `art/cutscenes/*.png` and `wanderer_hd_kneel.png` into the same paths under `godot/art/`); the Misborn and the Stammerer (sheets in art/enemies/<name>_hd, bodies in art/props, written to godot/art too): `art/drafts/misborn/assemble.py`, `art/drafts/stammerer/assemble.py` (key poses from `pixellab_keys.py`, in-betweens from `pixellab_anims.py`; open art issues in each folder's ISSUES.md)
 
 ## Layout
 
@@ -72,6 +74,8 @@ src/noise.js          hash + value noise
 src/input.js          keyboard + mouse input
 art/                  assets; folder structure in ART_RULES.md §13
 tools/check_art.py    automated art checks
+tools/world_design/   the fixed map's design (outline, elevation, vegetation, water and roads, places, cliffs) and its export
+godot/world/          the fixed map: region scenes and places, read by godot/scripts/world/world_map.gd; cliffs drawn by scripts/world/cliffs.gd
 tools/pixel.py        shared helpers for the placeholder art generators
 tools/pixellab.py     PixelLab API: generate and edit sprites (key in .env as PIXELLAB_API_KEY)
 tools/snap_palette.py snap AI output to the master palette, drop stray pixels
